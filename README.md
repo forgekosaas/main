@@ -71,8 +71,7 @@ Run `supabase/migrations/001_waitlist.sql` before testing the real waitlist flow
 The deploy target is Cloudflare via OpenNext:
 
 ```bash
-npm run cf:build
-npm run cf:deploy
+npm run deploy
 ```
 
 See `docs/DEPLOYMENT.md` for the deployment checklist.

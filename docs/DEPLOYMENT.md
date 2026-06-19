@@ -41,6 +41,26 @@ npm run cf:build
 
 Expected result: all commands pass. OpenNext currently prints a Windows compatibility warning; use WSL or CI/Linux for production deployment if Cloudflare runtime issues appear.
 
+## Cloudflare Workers Builds
+
+`wrangler.jsonc` includes a `build.command` that runs `npm run cf:build`, so Wrangler generates `.open-next` before uploading the Worker. This prevents `Could not find compiled Open Next config` when Cloudflare executes `npx wrangler deploy`.
+
+Recommended Cloudflare build settings:
+
+```bash
+Install command: npm clean-install --progress=false
+Build command:   leave empty
+Deploy command:  npx wrangler deploy
+```
+
+`npm run deploy` is equivalent for local usage because it calls `wrangler deploy`.
+
+For preview/non-production upload flows, use:
+
+```bash
+npm run upload
+```
+
 ## Database
 
 Apply:
