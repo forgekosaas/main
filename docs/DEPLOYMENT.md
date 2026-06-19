@@ -43,17 +43,17 @@ Expected result: all commands pass. OpenNext currently prints a Windows compatib
 
 ## Cloudflare Workers Builds
 
-`wrangler.jsonc` includes a `build.command` that runs `npm run cf:build`, so Wrangler generates `.open-next` before uploading the Worker. This prevents `Could not find compiled Open Next config` when Cloudflare executes `npx wrangler deploy`.
+Use the npm deploy script so OpenNext builds `.open-next` before uploading the Worker. Do not use `npx wrangler deploy` directly in Cloudflare Workers Builds; Wrangler's OpenNext autodetect can call deploy before `.open-next` exists.
 
 Recommended Cloudflare build settings:
 
 ```bash
 Install command: npm clean-install --progress=false
 Build command:   leave empty
-Deploy command:  npx wrangler deploy
+Deploy command:  npm run deploy
 ```
 
-`npm run deploy` is equivalent for local usage because it calls `wrangler deploy`.
+`npm run deploy` runs `opennextjs-cloudflare build && opennextjs-cloudflare deploy`.
 
 For preview/non-production upload flows, use:
 
