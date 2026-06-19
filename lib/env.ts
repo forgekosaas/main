@@ -17,6 +17,7 @@ export function getServerEnv() {
     supabaseAnonKey: readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
     supabaseServiceRoleKey: readEnv("SUPABASE_SERVICE_ROLE_KEY"),
     resendApiKey: readEnv("RESEND_API_KEY"),
-    resendFromEmail: readEnv("RESEND_FROM_EMAIL", "hello@forgeko.com")
+    resendFromEmail: readEnv("RESEND_FROM_EMAIL", "hello@forgeko.com"),
+    resendReplyToEmail: process.env.RESEND_REPLY_TO_EMAIL
   };
 }

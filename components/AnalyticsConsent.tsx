@@ -24,14 +24,26 @@ export function AnalyticsConsent() {
     setConsent(value);
   }
 
+  const plausibleScriptUrl = process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL;
   const plausibleHost = process.env.NEXT_PUBLIC_PLAUSIBLE_API_HOST;
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
   const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
+  const plausibleSource =
+    plausibleScriptUrl ?? (plausibleHost ? `${plausibleHost.replace(/\/$/, "")}/js/script.js` : undefined);
+  const plausibleScriptProps = plausibleDomain && !plausibleScriptUrl ? { "data-domain": plausibleDomain } : {};
 
   return (
     <>
-      {consent === "accepted" && plausibleHost && plausibleDomain ? (
-        <Script defer data-domain={plausibleDomain} src={`${plausibleHost.replace(/\/$/, "")}/js/script.js`} strategy="afterInteractive" />
+      {consent === "accepted" && plausibleSource ? (
+        <>
+          <Script id="plausible-init" strategy="afterInteractive">
+            {`
+              window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+              plausible.init()
+            `}
+          </Script>
+          <Script async src={plausibleSource} strategy="afterInteractive" {...plausibleScriptProps} />
+        </>
       ) : null}
       {consent === "accepted" && clarityProjectId ? (
         <Script id="clarity" strategy="afterInteractive">

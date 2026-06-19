@@ -55,9 +55,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=hello@forgeko.com
-NEXT_PUBLIC_CLARITY_PROJECT_ID=
+RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
+NEXT_PUBLIC_CLARITY_PROJECT_ID=x98rtg96a8
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=forgeko.com
 NEXT_PUBLIC_PLAUSIBLE_API_HOST=
+NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js
 ```
 
 Run `supabase/migrations/001_waitlist.sql` before testing the real waitlist flow.

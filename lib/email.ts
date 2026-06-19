@@ -14,6 +14,7 @@ export async function sendConfirmationEmail({
 
   const result = await resend.emails.send({
     from: `Forgeko <${env.resendFromEmail}>`,
+    replyTo: env.resendReplyToEmail,
     to: email,
     subject: "You're on the Forgeko waitlist.",
     text: [
