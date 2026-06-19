@@ -2,6 +2,8 @@
 
 Pre-release waitlist landing for Forgeko, an AI-guided operating system for solo SaaS builders.
 
+The Forgeko system allows anyone to become an entrepreneur.
+
 ## Stack
 
 - Next.js App Router
