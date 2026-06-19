@@ -1,0 +1,33 @@
+# Forgeko
+
+> Forgeko is an AI-guided operating system for solo SaaS builders.
+> It covers the full journey from idea validation to growth analytics
+> in a single environment with persistent Project Memory.
+
+## What Forgeko does
+
+- Validates SaaS ideas with AI-driven market and competitor analysis
+- Generates landing pages, brand identity, and core features from a strategic canvas
+- Configures payments, domain, and SSL without manual setup
+- Tracks growth with weekly AI-generated reports based on actual project history
+- Maintains Project Memory — every decision, approval, and milestone, carried forward indefinitely
+
+## Who it's for
+
+Solo builders, developers, PMs, and designers who want to launch a SaaS
+without managing the coordination overhead of validation, compliance,
+payments, and analytics across separate tools.
+
+## What makes it different
+
+Most AI tools have no memory. Every session starts from a blank slate.
+Forgeko accumulates context across the entire lifecycle of a project —
+not just the code, but the decisions behind it.
+
+## Status
+
+Currently in private development. Waitlist open at https://forgeko.com
+
+## Contact
+
+hello@forgeko.com

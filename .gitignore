@@ -1,0 +1,11 @@
+.next/
+.open-next/
+node_modules/
+.env
+.env.local
+.dev.vars
+coverage/
+dist/
+*.tsbuildinfo
+*.log
+.superpowers/

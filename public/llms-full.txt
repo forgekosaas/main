@@ -1,0 +1,67 @@
+# Forgeko Landing Copy
+
+## Hero
+
+Stop building. Start launching.
+
+Forgeko turns your SaaS idea into a running business — validation, landing, payments, growth analytics. AI-guided, fully yours, and it never forgets where you left off.
+
+Sounds like what you've been looking for? Join the waitlist — takes 10 seconds.
+
+## Problem
+
+Building a SaaS solo is not a creativity problem. It's a coordination problem.
+
+You validate an idea in Notion. Build a landing in Bolt. Set up payments manually in Stripe. Figure out compliance yourself. Track growth in a spreadsheet.
+
+Five tools. No shared context. No memory of what you decided last week.
+
+Every time you start a new session — with an AI or with yourself — you're rebuilding context from scratch.
+
+That's the overhead that kills solo projects. Not the code.
+
+## Solution
+
+Forgeko is a single environment where your SaaS project lives from day one to traction.
+
+Not a code generator. Not another no-code builder. A system that holds the full context of your project — and uses it at every step.
+
+One project. One place. Full context.
+
+From idea to launch, guided. Validation, landing page, payments, domain — each step builds on the previous one. No context switching, no setup from scratch.
+
+AI that knows your project. Every decision you approve becomes part of your Project Memory. The AI doesn't start over every session — it picks up exactly where you left off.
+
+Growth built in, not bolted on. Weekly reports, conversion analytics, and optimization suggestions — generated from your actual data, not generic advice.
+
+## How Forgeko works
+
+You start with an idea. Forgeko walks you through the rest.
+
+Validate. You describe your idea. Forgeko stress-tests it — market, competitors, positioning. You end up with a strategic canvas, not just a hype doc.
+
+Build. Landing page, brand identity, core features — generated from your canvas, not from a blank prompt. Every component is yours to edit, approve, or reject.
+
+Ship. Payments, domain, SSL — connected and configured inside Forgeko. No jumping between dashboards. No manual DNS nightmares.
+
+Grow. Weekly growth reports, conversion data, optimization suggestions — all generated from your project's actual history. Forgeko remembers what you built and why.
+
+At every step, your decisions are saved. That's your Project Memory — the context no other tool carries forward.
+
+## Why Forgeko is different
+
+There are great tools for generating code fast. Forgeko is not one of them.
+
+Code generators give you a starting point. Forgeko gives you a system. The difference shows up 3 months in, not 3 hours in.
+
+Most AI tools have no memory. Every session starts from a blank slate. Forgeko accumulates context — your decisions, your approvals, your project history — and carries it forward indefinitely.
+
+Shipping code is one step. Validation, payments, compliance, growth — those come after. Forgeko is built for after.
+
+If you need a quick prototype, use whatever works. If you're building something you intend to grow — Forgeko is where that project lives.
+
+## Waitlist
+
+Join the waitlist.
+
+Be among the first to access Forgeko when private beta opens. No spam. No pitch decks. Just updates when something real is ready.

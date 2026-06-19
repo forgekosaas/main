@@ -1,0 +1,4 @@
+Contact: mailto:hello@forgeko.com
+Preferred-Languages: en, it
+Canonical: https://forgeko.com/security.txt
+Policy: https://forgeko.com/security
