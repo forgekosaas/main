@@ -91,7 +91,8 @@ export async function submitWaitlistSignup({
     });
 
     return { ok: true, status: 201, code: "CREATED" };
-  } catch {
+  } catch (error) {
+    console.error("Waitlist signup failed", error);
     return { ok: false, status: 500, code: "WAITLIST_ERROR" };
   }
 }

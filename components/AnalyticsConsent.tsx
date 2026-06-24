@@ -4,6 +4,9 @@ import Script from "next/script";
 import { useEffect, useState } from "react";
 
 const consentKey = "forgeko_analytics_consent";
+const defaultClarityProjectId = "x98rtg96a8";
+const defaultPlausibleDomain = "forgeko.com";
+const defaultPlausibleScriptUrl = "https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js";
 
 export function AnalyticsConsent() {
   const [consent, setConsent] = useState<"unknown" | "accepted" | "declined">("unknown");
@@ -26,11 +29,11 @@ export function AnalyticsConsent() {
 
   const plausibleScriptUrl = process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL;
   const plausibleHost = process.env.NEXT_PUBLIC_PLAUSIBLE_API_HOST;
-  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
-  const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
+  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || defaultPlausibleDomain;
+  const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || defaultClarityProjectId;
   const plausibleSource =
-    plausibleScriptUrl ?? (plausibleHost ? `${plausibleHost.replace(/\/$/, "")}/js/script.js` : undefined);
-  const plausibleScriptProps = plausibleDomain && !plausibleScriptUrl ? { "data-domain": plausibleDomain } : {};
+    plausibleScriptUrl ?? (plausibleHost ? `${plausibleHost.replace(/\/$/, "")}/js/script.js` : defaultPlausibleScriptUrl);
+  const plausibleScriptProps = plausibleDomain && plausibleHost && !plausibleScriptUrl ? { "data-domain": plausibleDomain } : {};
 
   return (
     <>
