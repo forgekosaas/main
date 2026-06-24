@@ -13,12 +13,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --keep-vars",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload --keep-vars",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf:upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload"
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --keep-vars",
+    "cf:upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload --keep-vars"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.108.2",
