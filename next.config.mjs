@@ -21,7 +21,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              `default-src 'self'; script-src 'self' 'unsafe-inline'${devScriptPolicy} https://*.forgeko.com https://www.clarity.ms https://scripts.clarity.ms https://plausible.io; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.forgeko.com https://www.clarity.ms; connect-src 'self' https://*.forgeko.com https://*.supabase.co https://api.resend.com https://www.clarity.ms https://*.clarity.ms https://plausible.io; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+              `default-src 'self'; script-src 'self' 'unsafe-inline'${devScriptPolicy} https://*.forgeko.com https://www.clarity.ms https://scripts.clarity.ms https://plausible.io https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.forgeko.com https://www.clarity.ms; connect-src 'self' https://*.forgeko.com https://*.supabase.co https://api.resend.com https://www.clarity.ms https://*.clarity.ms https://plausible.io https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
           }
         ]
       }
