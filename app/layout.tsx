@@ -9,16 +9,16 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://forgeko.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Forgeko — The Operating System for Your SaaS",
+  title: "Forgeko — SaaS Operating System for Solo Builders",
   description:
-    "From idea validation to first revenue. Forgeko guides solo builders through validation, landing, payments, and growth — in one environment that never forgets where you left off.",
+    "Forgeko is a SaaS operating system for solo builders, guiding idea validation, landing pages, payments, launch workflows, and growth analytics in one environment.",
   alternates: {
     canonical: siteUrl
   },
   openGraph: {
-    title: "Forgeko — Stop Building. Start Launching.",
+    title: "Forgeko — SaaS Operating System for Solo Builders",
     description:
-      "The AI-guided environment for solo SaaS builders. Validation, landing, payments, growth — one system, full context.",
+      "The AI-guided SaaS environment for solo builders. Validation, landing, payments, growth analytics — one system, full context.",
     url: siteUrl,
     siteName: "Forgeko",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Forgeko waitlist" }],
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Forgeko — Stop Building. Start Launching.",
-    description: "The AI-guided environment for solo SaaS builders.",
+    title: "Forgeko — SaaS Operating System for Solo Builders",
+    description: "The AI-guided SaaS environment for solo builders.",
     images: ["/og-image.png"]
   },
   icons: {

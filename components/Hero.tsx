@@ -14,7 +14,7 @@ export function Hero() {
       </div>
       <div className="relative mx-auto max-w-copy">
         <h1 className="max-w-3xl text-5xl font-semibold leading-[0.98] tracking-normal text-forgeko-text sm:text-7xl">
-          Stop building. Start launching.
+          Launch your SaaS with full context.
         </h1>
         <p className="mt-8 text-xl leading-9 text-neutral-300 sm:text-2xl sm:leading-10">
           Forgeko turns your SaaS idea into a running business — validation, landing, payments, growth analytics. AI-guided, fully yours, and it never forgets where you left off.

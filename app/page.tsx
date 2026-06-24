@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Problem } from "@/components/Problem";
+import { SaaSOperatingSystem } from "@/components/SaaSOperatingSystem";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SocialProof } from "@/components/SocialProof";
 import { Solution } from "@/components/Solution";
@@ -19,6 +20,7 @@ export default function HomePage() {
         <Solution />
         <HowItWorks />
         <Differentiators />
+        <SaaSOperatingSystem />
         <SocialProof />
         <CTAFinal />
         <FAQ />

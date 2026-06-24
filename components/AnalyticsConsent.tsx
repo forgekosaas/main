@@ -47,7 +47,7 @@ export function AnalyticsConsent() {
         </>
       ) : null}
       {consent === "accepted" && clarityProjectId ? (
-        <Script id="clarity" strategy="afterInteractive">
+        <Script id="clarity" type="text/javascript" strategy="afterInteractive">
           {`
             (function(c,l,a,r,i,t,y){
               c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
