@@ -3,10 +3,9 @@
 import Script from "next/script";
 import { useEffect, useState } from "react";
 
+import { getAnalyticsConfig } from "@/lib/analytics-config";
+
 const consentKey = "forgeko_analytics_consent";
-const defaultClarityProjectId = "x98rtg96a8";
-const defaultPlausibleDomain = "forgeko.com";
-const defaultPlausibleScriptUrl = "https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js";
 
 export function AnalyticsConsent() {
   const [consent, setConsent] = useState<"unknown" | "accepted" | "declined">("unknown");
@@ -27,25 +26,24 @@ export function AnalyticsConsent() {
     setConsent(value);
   }
 
-  const plausibleScriptUrl = process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL;
-  const plausibleHost = process.env.NEXT_PUBLIC_PLAUSIBLE_API_HOST;
-  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || defaultPlausibleDomain;
-  const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || defaultClarityProjectId;
-  const plausibleSource =
-    plausibleScriptUrl ?? (plausibleHost ? `${plausibleHost.replace(/\/$/, "")}/js/script.js` : defaultPlausibleScriptUrl);
-  const plausibleScriptProps = plausibleDomain && plausibleHost && !plausibleScriptUrl ? { "data-domain": plausibleDomain } : {};
+  const { clarityProjectId, plausible } = getAnalyticsConfig({
+    NEXT_PUBLIC_CLARITY_PROJECT_ID: process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID,
+    NEXT_PUBLIC_PLAUSIBLE_DOMAIN: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN,
+    NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL: process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL,
+    NEXT_PUBLIC_PLAUSIBLE_ENDPOINT: process.env.NEXT_PUBLIC_PLAUSIBLE_ENDPOINT
+  });
 
   return (
     <>
-      {consent === "accepted" && plausibleSource ? (
+      {consent === "accepted" && plausible.scriptUrl ? (
         <>
           <Script id="plausible-init" strategy="afterInteractive">
             {`
               window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-              plausible.init()
+              plausible.init({ endpoint: "${plausible.endpoint}" })
             `}
           </Script>
-          <Script async src={plausibleSource} strategy="afterInteractive" {...plausibleScriptProps} />
+          <Script async src={plausible.scriptUrl} strategy="afterInteractive" data-domain={plausible.domain} />
         </>
       ) : null}
       {consent === "accepted" && clarityProjectId ? (

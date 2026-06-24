@@ -3,6 +3,13 @@ import { dirname } from "node:path";
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const devScriptPolicy = process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
+const discoveryLinkHeader = [
+  "</.well-known/api-catalog>; rel=\"api-catalog\"",
+  "</openapi.json>; rel=\"service-desc\"; type=\"application/openapi+json\"",
+  "</docs/api>; rel=\"service-doc\"; type=\"text/html\"",
+  "</llms.txt>; rel=\"describedby\"; type=\"text/markdown\"",
+  "</.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\""
+].join(", ");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -11,6 +18,13 @@ const nextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/",
+        headers: [
+          { key: "Link", value: discoveryLinkHeader },
+          { key: "Cache-Control", value: "public, max-age=300, stale-while-revalidate=3600" }
+        ]
+      },
       {
         source: "/(.*)",
         headers: [
@@ -21,7 +35,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              `default-src 'self'; script-src 'self' 'unsafe-inline'${devScriptPolicy} https://*.forgeko.com https://www.clarity.ms https://scripts.clarity.ms https://plausible.io https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.forgeko.com https://www.clarity.ms; connect-src 'self' https://*.forgeko.com https://*.supabase.co https://api.resend.com https://www.clarity.ms https://*.clarity.ms https://plausible.io https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+              `default-src 'self'; script-src 'self' 'unsafe-inline'${devScriptPolicy} https://*.forgeko.com https://www.clarity.ms https://scripts.clarity.ms https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.forgeko.com https://www.clarity.ms; connect-src 'self' https://*.forgeko.com https://*.supabase.co https://api.resend.com https://www.clarity.ms https://*.clarity.ms https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
           }
         ]
       }
