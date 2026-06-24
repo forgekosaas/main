@@ -55,10 +55,11 @@ describe("waitlist signup", () => {
         confirmUrl: expect.stringContaining("/api/waitlist/confirm?token=")
       })
     );
+    expect(deps.recordConfirmationEmailSent).toHaveBeenCalledWith("founder@forgeko.com", "email_123");
   });
 
-  it("returns an already joined response for duplicate email", async () => {
-    const deps = fakeDeps({ duplicate: true });
+  it("returns an already joined response for confirmed duplicate email", async () => {
+    const deps = fakeDeps({ upsertStatus: "confirmed_duplicate" });
 
     const result = await submitWaitlistSignup({
       input: { email: "founder@forgeko.com", consentMarketing: true, source: "cta_final" },
@@ -70,6 +71,27 @@ describe("waitlist signup", () => {
     expect(result.status).toBe(200);
     expect(result.code).toBe("ALREADY_JOINED");
     expect(deps.sendConfirmationEmail).not.toHaveBeenCalled();
+  });
+
+  it("resends confirmation for unconfirmed duplicate email", async () => {
+    const deps = fakeDeps({ upsertStatus: "pending_duplicate" });
+
+    const result = await submitWaitlistSignup({
+      input: { email: "founder@forgeko.com", consentMarketing: true, source: "cta_final" },
+      requestMeta: { userAgent: "vitest", country: "IT" },
+      deps
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe(201);
+    expect(result.code).toBe("CREATED");
+    expect(deps.sendConfirmationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "founder@forgeko.com",
+        confirmUrl: expect.stringContaining("/api/waitlist/confirm?token=")
+      })
+    );
+    expect(deps.recordConfirmationEmailSent).toHaveBeenCalledWith("founder@forgeko.com", "email_123");
   });
 });
 
@@ -93,10 +115,11 @@ describe("event allowlist", () => {
   });
 });
 
-function fakeDeps(options: { duplicate?: boolean } = {}) {
+function fakeDeps(options: { upsertStatus?: "created" | "pending_duplicate" | "confirmed_duplicate" } = {}) {
   return {
     siteUrl: "https://forgeko.com",
-    upsertWaitlist: vi.fn(async () => ({ duplicate: options.duplicate ?? false })),
-    sendConfirmationEmail: vi.fn(async () => ({ id: "email_123" }))
+    upsertWaitlist: vi.fn(async () => ({ status: options.upsertStatus ?? "created" })),
+    sendConfirmationEmail: vi.fn(async () => ({ id: "email_123" })),
+    recordConfirmationEmailSent: vi.fn(async () => undefined)
   };
 }

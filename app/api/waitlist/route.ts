@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getSiteUrl } from "@/lib/env";
 import { sendConfirmationEmail } from "@/lib/email";
-import { upsertWaitlist } from "@/lib/waitlist-repository";
+import { recordConfirmationEmailSent, upsertWaitlist } from "@/lib/waitlist-repository";
 import { submitWaitlistSignup } from "@/lib/waitlist";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +30,8 @@ export async function POST(request: Request) {
     deps: {
       siteUrl: getSiteUrl(),
       upsertWaitlist,
-      sendConfirmationEmail
+      sendConfirmationEmail,
+      recordConfirmationEmailSent
     }
   });
 

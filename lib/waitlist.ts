@@ -32,8 +32,9 @@ export interface WaitlistInsert {
 
 export interface WaitlistDeps {
   siteUrl: string;
-  upsertWaitlist: (row: WaitlistInsert) => Promise<{ duplicate: boolean }>;
+  upsertWaitlist: (row: WaitlistInsert) => Promise<{ status: "created" | "pending_duplicate" | "confirmed_duplicate" }>;
   sendConfirmationEmail: (message: { email: string; confirmUrl: string }) => Promise<{ id?: string }>;
+  recordConfirmationEmailSent?: (email: string, messageId: string) => Promise<void>;
 }
 
 export type WaitlistResult =
@@ -78,17 +79,23 @@ export async function submitWaitlistSignup({
       metadata: requestMeta.metadata ?? {}
     });
 
-    if (upsertResult.duplicate) {
+    if (upsertResult.status === "confirmed_duplicate") {
       return { ok: true, status: 200, code: "ALREADY_JOINED" };
     }
 
     const confirmUrl = new URL("/api/waitlist/confirm", deps.siteUrl);
     confirmUrl.searchParams.set("token", token);
 
-    await deps.sendConfirmationEmail({
+    const emailResult = await deps.sendConfirmationEmail({
       email: parsed.data.email,
       confirmUrl: confirmUrl.toString()
     });
+
+    if (emailResult.id && deps.recordConfirmationEmailSent) {
+      await deps.recordConfirmationEmailSent(parsed.data.email, emailResult.id).catch((error) => {
+        console.error("Failed to record waitlist email provider id", error);
+      });
+    }
 
     return { ok: true, status: 201, code: "CREATED" };
   } catch (error) {

@@ -14,21 +14,63 @@ export async function upsertWaitlist(row: WaitlistInsert) {
     throw selectError;
   }
 
+  if (existing?.confirmed) {
+    return { status: "confirmed_duplicate" as const };
+  }
+
   if (existing) {
-    return { duplicate: true };
+    await refreshPendingWaitlistSignup(existing.id, row);
+    return { status: "pending_duplicate" as const };
   }
 
   const { error } = await supabase.from("waitlist").insert(row);
 
   if (error) {
     if (error.code === "23505") {
-      return { duplicate: true };
+      return upsertWaitlist(row);
     }
 
     throw error;
   }
 
-  return { duplicate: false };
+  return { status: "created" as const };
+}
+
+async function refreshPendingWaitlistSignup(id: string, row: WaitlistInsert) {
+  const supabase = createSupabaseServiceClient();
+  const { error } = await supabase
+    .from("waitlist")
+    .update({
+      source: row.source,
+      country: row.country,
+      user_agent: row.user_agent,
+      consent_marketing: row.consent_marketing,
+      confirmation_token_hash: row.confirmation_token_hash,
+      confirmation_sent_at: row.confirmation_sent_at,
+      resend_message_id: null,
+      metadata: row.metadata,
+      updated_at: row.confirmation_sent_at
+    })
+    .eq("id", id);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function recordConfirmationEmailSent(email: string, messageId: string) {
+  const supabase = createSupabaseServiceClient();
+  const { error } = await supabase
+    .from("waitlist")
+    .update({
+      resend_message_id: messageId,
+      updated_at: new Date().toISOString()
+    })
+    .eq("email", email);
+
+  if (error) {
+    throw error;
+  }
 }
 
 export async function confirmByTokenHash(tokenHash: string) {
@@ -39,7 +81,8 @@ export async function confirmByTokenHash(tokenHash: string) {
     .update({
       confirmed: true,
       confirmed_at: new Date().toISOString(),
-      confirmation_token_hash: null
+      confirmation_token_hash: null,
+      updated_at: new Date().toISOString()
     })
     .eq("confirmation_token_hash", tokenHash)
     .select("id")
