@@ -34,6 +34,12 @@ export interface WaitlistDeps {
   siteUrl: string;
   upsertWaitlist: (row: WaitlistInsert) => Promise<{ status: "created" | "pending_duplicate" | "confirmed_duplicate" }>;
   sendConfirmationEmail: (message: { email: string; confirmUrl: string }) => Promise<{ id?: string }>;
+  sendNewWaitlistUserEmail?: (message: {
+    email: string;
+    source: WaitlistSource;
+    country: string | null;
+    userAgent: string | null;
+  }) => Promise<{ id?: string }>;
   recordConfirmationEmailSent?: (email: string, messageId: string) => Promise<void>;
 }
 
@@ -95,6 +101,19 @@ export async function submitWaitlistSignup({
       await deps.recordConfirmationEmailSent(parsed.data.email, emailResult.id).catch((error) => {
         console.error("Failed to record waitlist email provider id", error);
       });
+    }
+
+    if (upsertResult.status === "created" && deps.sendNewWaitlistUserEmail) {
+      await deps
+        .sendNewWaitlistUserEmail({
+          email: parsed.data.email,
+          source: parsed.data.source,
+          country: requestMeta.country ?? null,
+          userAgent: requestMeta.userAgent ?? null
+        })
+        .catch((error) => {
+          console.error("Failed to send waitlist admin notification", error);
+        });
     }
 
     return { ok: true, status: 201, code: "CREATED" };

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getSiteUrl } from "@/lib/env";
-import { sendConfirmationEmail } from "@/lib/email";
+import { sendConfirmationEmail, sendNewWaitlistUserEmail } from "@/lib/email";
 import { recordConfirmationEmailSent, upsertWaitlist } from "@/lib/waitlist-repository";
 import { submitWaitlistSignup } from "@/lib/waitlist";
 
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       siteUrl: getSiteUrl(),
       upsertWaitlist,
       sendConfirmationEmail,
+      sendNewWaitlistUserEmail,
       recordConfirmationEmailSent
     }
   });

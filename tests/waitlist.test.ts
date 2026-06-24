@@ -58,6 +58,24 @@ describe("waitlist signup", () => {
     expect(deps.recordConfirmationEmailSent).toHaveBeenCalledWith("founder@forgeko.com", "email_123");
   });
 
+  it("notifies the team when a new waitlist user is created", async () => {
+    const deps = fakeDeps();
+
+    const result = await submitWaitlistSignup({
+      input: { email: "builder@example.com", consentMarketing: true, source: "solution" },
+      requestMeta: { userAgent: "Mozilla/5.0", country: "US", metadata: { referer: "https://forgeko.com/" } },
+      deps
+    });
+
+    expect(result.ok).toBe(true);
+    expect(deps.sendNewWaitlistUserEmail).toHaveBeenCalledWith({
+      email: "builder@example.com",
+      source: "solution",
+      country: "US",
+      userAgent: "Mozilla/5.0"
+    });
+  });
+
   it("returns an already joined response for confirmed duplicate email", async () => {
     const deps = fakeDeps({ upsertStatus: "confirmed_duplicate" });
 
@@ -71,6 +89,7 @@ describe("waitlist signup", () => {
     expect(result.status).toBe(200);
     expect(result.code).toBe("ALREADY_JOINED");
     expect(deps.sendConfirmationEmail).not.toHaveBeenCalled();
+    expect(deps.sendNewWaitlistUserEmail).not.toHaveBeenCalled();
   });
 
   it("resends confirmation for unconfirmed duplicate email", async () => {
@@ -92,6 +111,7 @@ describe("waitlist signup", () => {
       })
     );
     expect(deps.recordConfirmationEmailSent).toHaveBeenCalledWith("founder@forgeko.com", "email_123");
+    expect(deps.sendNewWaitlistUserEmail).not.toHaveBeenCalled();
   });
 });
 
@@ -110,6 +130,7 @@ describe("confirmation tokens", () => {
 describe("event allowlist", () => {
   it("accepts documented event names and rejects unknown names", () => {
     expect(isAllowedEventType("CTA_Hero_Click")).toBe(true);
+    expect(isAllowedEventType("Feedback_Submit")).toBe(true);
     expect(isAllowedEventType("Waitlist_Confirmed")).toBe(true);
     expect(isAllowedEventType("Injected_Event")).toBe(false);
   });
@@ -120,6 +141,7 @@ function fakeDeps(options: { upsertStatus?: "created" | "pending_duplicate" | "c
     siteUrl: "https://forgeko.com",
     upsertWaitlist: vi.fn(async () => ({ status: options.upsertStatus ?? "created" })),
     sendConfirmationEmail: vi.fn(async () => ({ id: "email_123" })),
+    sendNewWaitlistUserEmail: vi.fn(async () => ({ id: "admin_email_123" })),
     recordConfirmationEmailSent: vi.fn(async () => undefined)
   };
 }

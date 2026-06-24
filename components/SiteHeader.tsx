@@ -18,12 +18,20 @@ export function SiteHeader() {
             How it works
           </a>
         </div>
-        <a
-          href="#waitlist"
-          className="focus-ring inline-flex h-10 items-center justify-center border border-forgeko-border bg-white/[0.02] px-4 text-sm font-medium text-forgeko-text transition hover:border-forgeko-accent/70 hover:bg-forgeko-accent/10"
-        >
-          Waitlist
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href="#contact"
+            className="focus-ring hidden h-10 items-center justify-center border border-forgeko-border bg-white/[0.02] px-4 text-sm font-medium text-forgeko-text transition hover:border-forgeko-accent/70 hover:bg-forgeko-accent/10 sm:inline-flex"
+          >
+            Contact us
+          </a>
+          <a
+            href="#waitlist"
+            className="focus-ring inline-flex h-10 items-center justify-center border border-forgeko-border bg-white/[0.02] px-4 text-sm font-medium text-forgeko-text transition hover:border-forgeko-accent/70 hover:bg-forgeko-accent/10"
+          >
+            Waitlist
+          </a>
+        </div>
       </nav>
     </header>
   );

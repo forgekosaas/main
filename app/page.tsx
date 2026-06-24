@@ -1,4 +1,5 @@
 import { CTAFinal } from "@/components/CTAFinal";
+import { ContactFeedback } from "@/components/ContactFeedback";
 import { Differentiators } from "@/components/Differentiators";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
@@ -25,6 +26,7 @@ export default function HomePage() {
         <LaunchDepth />
         <SocialProof />
         <CTAFinal />
+        <ContactFeedback />
         <FAQ />
       </main>
       <Footer />

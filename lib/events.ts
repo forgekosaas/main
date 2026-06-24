@@ -3,6 +3,8 @@ export const allowedEventTypes = [
   "CTA_Solution_Click",
   "Scroll_HowItWorks",
   "Scroll_SocialProof",
+  "Feedback_FormFocus",
+  "Feedback_Submit",
   "Waitlist_FormFocus",
   "Waitlist_Submit",
   "Waitlist_Confirmed"

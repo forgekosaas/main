@@ -18,6 +18,7 @@ export function getServerEnv() {
     supabaseServiceRoleKey: readEnv("SUPABASE_SERVICE_ROLE_KEY"),
     resendApiKey: readEnv("RESEND_API_KEY"),
     resendFromEmail: readEnv("RESEND_FROM_EMAIL", "hello@forgeko.com"),
-    resendReplyToEmail: process.env.RESEND_REPLY_TO_EMAIL
+    resendReplyToEmail: process.env.RESEND_REPLY_TO_EMAIL,
+    forgekoAdminEmail: process.env.FORGEKO_ADMIN_EMAIL ?? "forgeko.saas@gmail.com"
   };
 }

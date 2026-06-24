@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Footer() {
   return (
     <footer className="border-t border-forgeko-border px-5 py-10 sm:px-6">
@@ -13,6 +15,9 @@ export function Footer() {
           <a className="focus-ring hover:text-forgeko-text" href="/security">
             Security
           </a>
+          <Link className="focus-ring hover:text-forgeko-text" href="/#contact">
+            Contact
+          </Link>
           <a className="focus-ring hover:text-forgeko-text" href="/humans.txt">
             humans.txt
           </a>
