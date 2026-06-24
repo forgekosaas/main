@@ -4,6 +4,7 @@ import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
+import { LaunchDepth } from "@/components/LaunchDepth";
 import { Problem } from "@/components/Problem";
 import { SaaSOperatingSystem } from "@/components/SaaSOperatingSystem";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -21,6 +22,7 @@ export default function HomePage() {
         <HowItWorks />
         <Differentiators />
         <SaaSOperatingSystem />
+        <LaunchDepth />
         <SocialProof />
         <CTAFinal />
         <FAQ />
