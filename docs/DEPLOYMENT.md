@@ -20,6 +20,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=hello@forgeko.com
 RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
+FORGEKO_ADMIN_EMAIL=forgeko.saas@gmail.com
 NEXT_PUBLIC_CLARITY_PROJECT_ID=x98rtg96a8
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=forgeko.com
 NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=/p/js/script.js
@@ -29,7 +30,7 @@ PLAUSIBLE_ORIGIN=https://plausible.io
 ```
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` or `RESEND_API_KEY` to the client.
-Use `hello@forgeko.com` only after verifying `forgeko.com` in Resend. Keep `forgeko.saas@gmail.com` as the reply-to inbox.
+Use `hello@forgeko.com` only after verifying `forgeko.com` in Resend. Keep `forgeko.saas@gmail.com` as the reply-to and admin notification inbox unless a dedicated mailbox is configured.
 Keep Plausible first-party in the browser: `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL` must stay on `/p/js/script.js`, and `NEXT_PUBLIC_PLAUSIBLE_ENDPOINT` must stay on `/p/event`. If you run a self-hosted Plausible instance, point server-side `PLAUSIBLE_SCRIPT_URL` and `PLAUSIBLE_ORIGIN` to that instance; do not expose that origin as a public client script URL.
 
 ## Pre-Deploy Checks
@@ -85,6 +86,8 @@ Before public launch:
 
 - Submit a waitlist email with explicit consent.
 - Confirm that Resend sends the confirmation email.
+- Confirm that `FORGEKO_ADMIN_EMAIL` receives the "A NEW USER" notification for a newly created waitlist signup.
+- Submit the contact feedback form and confirm the message reaches `FORGEKO_ADMIN_EMAIL`.
 - Click the confirmation URL and verify `confirmed=true`.
 - Verify `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt`, `/humans.txt`, and `/security.txt`.
 - Verify `/favicon.ico` and `/favicon-48.png` return `200`, and that the homepage includes both favicon links. Google may need a recrawl before the favicon appears in `site:forgeko.com`; request indexing in Search Console after deploy if needed.

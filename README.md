@@ -1,77 +1,184 @@
 # Forgeko Landing
 
-Pre-release waitlist landing for Forgeko, an AI-guided operating system for solo SaaS builders.
+Forgeko is a pre-release landing and waitlist site for an AI startup operating system built for solo SaaS founders.
 
-The Forgeko system allows anyone to become an entrepreneur.
+The site is designed to validate demand, explain the product positioning, collect waitlist signups, receive feedback, and expose clean public discovery files for search engines and AI agents.
 
 ## Stack
 
 - Next.js App Router
-- TypeScript
+- React and TypeScript
 - Tailwind CSS
-- Framer Motion
 - Supabase for waitlist and event storage
-- Resend for double opt-in email
-- OpenNext Cloudflare for deployment
+- Resend for confirmation, feedback, and admin notification emails
+- Microsoft Clarity and first-party Plausible proxy for analytics
+- OpenNext Cloudflare for Worker deployment
+- Vitest and ESLint for verification
 
 ## Project Structure
 
 ```text
 app/                 Next.js routes, metadata, API handlers, legal pages
-components/          Landing sections and client UI
-lib/                 Waitlist, analytics, Supabase, email, crypto helpers
-public/              SEO, AI SEO, manifest, icons, OG image, optimized logo
-supabase/migrations/ Waitlist and event database schema
-tests/               Vitest coverage for waitlist and confirmation behavior
-docs/specs/          Source product and landing specifications
-assets/brand/        Source logo exports
+components/          Landing sections, forms, and client UI
+lib/                 Waitlist, feedback, analytics, Supabase, email, crypto helpers
+public/              Public files served directly by URL
+assets/brand/        Source logo exports and brand assets not served directly
+supabase/migrations/ Database schema and migrations
+tests/               Vitest coverage for waitlist, feedback, analytics, and discovery
+docs/                Project documentation safe to publish in the repository
+docs/specs/          Product and landing specifications
 ```
+
+Important security rule:
+
+> Files inside `public/` are public. Anything private must stay outside `public/` and outside Git.
+
+See [docs/SECURITY_AND_FILE_STRUCTURE.md](docs/SECURITY_AND_FILE_STRUCTURE.md) for the file safety policy.
 
 ## Local Development
 
+Install dependencies:
+
 ```bash
 npm install
+```
+
+Create a local environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+Fill the required values in `.env.local`, then start the app:
+
+```bash
 npm run dev
 ```
 
 Open `http://127.0.0.1:3000`.
 
-## Verification
+## Environment Variables
+
+`.env.example` documents the expected configuration. Real values must live in `.env.local` locally and in Cloudflare environment variables for production.
+
+Required server-side secrets:
 
 ```bash
-npm test
-npm run lint
-npm run typecheck
-npm run build
-npm run cf:build
+SUPABASE_SERVICE_ROLE_KEY=
+RESEND_API_KEY=
 ```
 
-## Environment
+These values must never be exposed through `NEXT_PUBLIC_*` variables or committed to Git.
 
-Copy `.env.example` to `.env.local` and fill the production provider values:
+Public configuration:
 
 ```bash
 NEXT_PUBLIC_SITE_URL=https://forgeko.com
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-RESEND_API_KEY=
-RESEND_FROM_EMAIL=hello@forgeko.com
-RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
 NEXT_PUBLIC_CLARITY_PROJECT_ID=x98rtg96a8
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=forgeko.com
-NEXT_PUBLIC_PLAUSIBLE_API_HOST=
-NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js
+NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=/p/js/script.js
+NEXT_PUBLIC_PLAUSIBLE_ENDPOINT=/p/event
 ```
 
-Run `supabase/migrations/001_waitlist.sql` before testing the real waitlist flow.
+Email configuration:
 
-## Deploy
+```bash
+RESEND_FROM_EMAIL=hello@forgeko.com
+RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
+FORGEKO_ADMIN_EMAIL=forgeko.saas@gmail.com
+```
 
-The deploy target is Cloudflare via OpenNext:
+Plausible proxy configuration:
+
+```bash
+PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js
+PLAUSIBLE_ORIGIN=https://plausible.io
+```
+
+## Database
+
+Apply the Supabase migration before testing real waitlist flows:
+
+```text
+supabase/migrations/001_waitlist.sql
+```
+
+The migration creates waitlist storage, page event storage, indexes, and RLS policies.
+
+## Verification
+
+Run the full local verification suite before committing or deploying:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm run cf:build
+```
+
+Useful security check before committing:
+
+```bash
+git status --short
+git ls-files | rg "(^|/)(\.env$|\.env\.(local|development|production|preview|staging|test)|\.dev\.vars)|secret|password|private|\.pem$|\.key$|\.p12$|\.pfx$"
+```
+
+Expected: no real environment files, private keys, password files, or private exports are tracked.
+
+## Deployment
+
+The production target is Cloudflare Workers through OpenNext:
 
 ```bash
 npm run deploy
 ```
 
-See `docs/DEPLOYMENT.md` for the deployment checklist.
+The deployment script runs:
+
+```bash
+opennextjs-cloudflare build && opennextjs-cloudflare deploy --keep-vars
+```
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full deployment checklist.
+
+## Public Routes and Files
+
+Key pages:
+
+- `/`
+- `/privacy`
+- `/terms`
+- `/security`
+- `/docs/api`
+- `/waitlist/confirmed`
+
+Key API routes:
+
+- `POST /api/waitlist`
+- `GET /api/waitlist/confirm`
+- `POST /api/feedback`
+- `POST /api/events`
+- `GET /p/js/script.js`
+- `POST /p/event`
+
+Public discovery files:
+
+- `/robots.txt`
+- `/sitemap.xml`
+- `/llms.txt`
+- `/llms-full.txt`
+- `/humans.txt`
+- `/security.txt`
+- `/.well-known/api-catalog`
+- `/openapi.json`
+
+## Documentation
+
+- [Deployment](docs/DEPLOYMENT.md)
+- [Security and File Structure](docs/SECURITY_AND_FILE_STRUCTURE.md)
+- [Growth Marketing Plan](docs/FORGEKO_GROWTH_MARKETING_PLAN.md)
+- [Landing Spec](docs/specs/FORGEKO_LANDING_SPEC.md)
+- [Master Spec](docs/specs/FORGEKO_MASTER_SPEC.md)

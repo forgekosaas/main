@@ -1,12 +1,63 @@
+# Dependencies
+node_modules/
+
+# Next.js / OpenNext / Cloudflare build output
 .next/
 .open-next/
-node_modules/
-.env
-.env.local
-.dev.vars
-coverage/
-dist/
-*.tsbuildinfo
-*.log
-.superpowers/
+.vercel/
 .wrangler/
+dist/
+out/
+
+# Test and coverage output
+coverage/
+playwright-report/
+test-results/
+
+# TypeScript and framework caches
+*.tsbuildinfo
+.turbo/
+.cache/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.local
+
+# Private project material. Do not put anything in public/ unless it is meant to be served by URL.
+private/
+secrets/
+local/
+secure/
+
+# Credentials and certificates
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.crt
+*.csr
+*.cert
+id_rsa*
+id_ed25519*
+
+# Logs and local diagnostics
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor and OS files
+.vscode/
+.idea/
+.qodo/
+.DS_Store
+Thumbs.db
+
+# Agent/local tooling
+.superpowers/
