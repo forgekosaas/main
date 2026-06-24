@@ -60,14 +60,14 @@ export function WaitlistForm() {
           required
           autoComplete="email"
           placeholder="Your email"
-          className="focus-ring min-h-12 flex-1 border border-forgeko-border bg-black px-4 text-base text-forgeko-text placeholder:text-neutral-600"
+          className="focus-ring min-h-12 flex-1 border border-forgeko-border bg-black/70 px-4 text-base text-forgeko-text transition placeholder:text-neutral-600 hover:border-neutral-700 focus:border-forgeko-accent/70"
           onChange={(event) => setEmail(event.target.value)}
           onFocus={() => trackEvent("Waitlist_FormFocus", { source: "cta_final" })}
         />
         <button
           type="submit"
           disabled={state === "submitting"}
-          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 bg-forgeko-accent px-5 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-70"
+          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 bg-forgeko-accent px-5 text-sm font-semibold text-white shadow-[0_16px_38px_rgba(79,70,229,0.25)] transition hover:bg-indigo-500 hover:shadow-[0_18px_46px_rgba(79,70,229,0.32)] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {state === "submitting" ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : null}
           Join waitlist

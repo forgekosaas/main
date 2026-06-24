@@ -5,7 +5,7 @@ const earlyAccess = ["Direct line to the founding team", "Influence over the roa
 export function CTAFinal() {
   return (
     <section id="waitlist" className="px-5 py-20 sm:px-6 sm:py-28">
-      <div className="mx-auto max-w-copy border border-forgeko-border bg-forgeko-section p-6 sm:p-10">
+      <div className="mx-auto max-w-copy border border-forgeko-border bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.018))] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_90px_rgba(0,0,0,0.32)] sm:p-10">
         <p className="text-lg leading-8 text-neutral-300">
           You&apos;ve read this far.
           <br />

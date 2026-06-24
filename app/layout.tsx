@@ -63,7 +63,7 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: "Forgeko",
   url: siteUrl,
-  logo: `${siteUrl}/logo.png`,
+  logo: `${siteUrl}/logo-on-light.png`,
   sameAs: []
 };
 

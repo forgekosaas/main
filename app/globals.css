@@ -23,7 +23,7 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.12), transparent 32rem),
+    linear-gradient(180deg, rgba(79, 70, 229, 0.08), transparent 30rem),
     var(--background);
   color: var(--text);
   font-family: var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif;
@@ -58,4 +58,95 @@ input {
 
 .focus-ring:focus-visible {
   outline-color: var(--accent);
+}
+
+.signal-field {
+  opacity: 0.9;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 17%, black 70%, transparent 100%);
+}
+
+.signal-mesh {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(115deg, transparent 0 42%, rgba(79, 70, 229, 0.2) 42.1%, transparent 42.8%),
+    linear-gradient(65deg, transparent 0 54%, rgba(45, 212, 191, 0.11) 54.1%, transparent 54.7%);
+  background-position:
+    50% 0,
+    50% 0,
+    0 0,
+    0 0;
+  background-size:
+    84px 84px,
+    84px 84px,
+    360px 360px,
+    420px 420px;
+  opacity: 0.5;
+  transform-origin: center;
+  animation: signal-mesh-drift 22s ease-in-out infinite alternate;
+  mask-image: linear-gradient(to right, transparent 0%, black 18%, black 82%, transparent 100%);
+}
+
+.signal-node {
+  box-shadow: 0 0 28px rgba(79, 70, 229, 0.5);
+  animation: signal-node-drift 8s ease-in-out infinite;
+}
+
+.signal-stream {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.58), rgba(45, 212, 191, 0.4), transparent);
+  opacity: 0;
+  animation: signal-stream-pass 5.8s ease-in-out infinite;
+}
+
+@keyframes signal-mesh-drift {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  to {
+    transform: translate3d(calc(-50% + 18px), 14px, 0);
+  }
+}
+
+@keyframes signal-node-drift {
+  0%,
+  100% {
+    opacity: 0.34;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    opacity: 0.82;
+    transform: translate3d(var(--x), var(--y), 0) scale(1.22);
+  }
+}
+
+@keyframes signal-stream-pass {
+  0%,
+  18% {
+    opacity: 0;
+    transform: translateX(-18%);
+  }
+
+  42%,
+  58% {
+    opacity: 0.44;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(24%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .signal-mesh,
+  .signal-node,
+  .signal-stream {
+    animation: none;
+  }
 }
