@@ -47,6 +47,8 @@ The app serves Plausible through same-origin Cloudflare Worker routes:
 - Browser script: `/p/js/script`
 - Event endpoint: `/p/event`
 
+`npm run cf:build` patches the generated `.open-next/worker.js` so `/p/js/script` and legacy `/p/js/script.js` are served directly by the Cloudflare Worker before requests enter the Next.js router.
+
 The client snippet initializes Plausible with:
 
 ```js
