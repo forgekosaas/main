@@ -23,7 +23,7 @@ RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
 FORGEKO_ADMIN_EMAIL=forgeko.saas@gmail.com
 NEXT_PUBLIC_CLARITY_PROJECT_ID=x98rtg96a8
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=forgeko.com
-NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=/p/js/script.js
+NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=/p/js/script
 NEXT_PUBLIC_PLAUSIBLE_ENDPOINT=/p/event
 PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js
 PLAUSIBLE_ORIGIN=https://plausible.io
@@ -31,7 +31,7 @@ PLAUSIBLE_ORIGIN=https://plausible.io
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` or `RESEND_API_KEY` to the client.
 Use `hello@forgeko.com` only after verifying `forgeko.com` in Resend. Keep `forgeko.saas@gmail.com` as the reply-to and admin notification inbox unless a dedicated mailbox is configured.
-Keep Plausible first-party in the browser: `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL` must stay on `/p/js/script.js`, and `NEXT_PUBLIC_PLAUSIBLE_ENDPOINT` must stay on `/p/event`. If you run a self-hosted Plausible instance, point server-side `PLAUSIBLE_SCRIPT_URL` and `PLAUSIBLE_ORIGIN` to that instance; do not expose that origin as a public client script URL.
+Keep Plausible first-party in the browser: `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL` must stay on `/p/js/script`, and `NEXT_PUBLIC_PLAUSIBLE_ENDPOINT` must stay on `/p/event`. If you run a self-hosted Plausible instance, point server-side `PLAUSIBLE_SCRIPT_URL` and `PLAUSIBLE_ORIGIN` to that instance; do not expose that origin as a public client script URL.
 
 For Cloudflare Workers Builds, set the same non-secret Plausible values in both places:
 
@@ -44,7 +44,7 @@ For Cloudflare Workers Builds, set the same non-secret Plausible values in both 
 
 The app serves Plausible through same-origin Cloudflare Worker routes:
 
-- Browser script: `/p/js/script.js`
+- Browser script: `/p/js/script`
 - Event endpoint: `/p/event`
 
 The client snippet initializes Plausible with:
@@ -58,7 +58,7 @@ This matches Plausible's current proxy guidance for the updated script, where cu
 After deploy, verify the proxy:
 
 ```bash
-curl -I https://forgeko.com/p/js/script.js
+curl -I https://forgeko.com/p/js/script
 curl -i -X POST https://forgeko.com/p/event \
   -H "Content-Type: application/json" \
   -H "User-Agent: Forgeko deploy check" \
@@ -126,6 +126,6 @@ Before public launch:
 - Verify `/favicon.ico` and `/favicon-48.png` return `200`, and that the homepage includes both favicon links. Google may need a recrawl before the favicon appears in `site:forgeko.com`; request indexing in Search Console after deploy if needed.
 - Verify `curl -I https://forgeko.com/` includes `Link: </.well-known/api-catalog>; rel="api-catalog"`.
 - If Cloudflare Markdown for Agents is enabled on the zone, verify `curl -H "Accept: text/markdown" https://forgeko.com/` returns `Content-Type: text/markdown`.
-- Verify `/p/js/script.js` returns JavaScript and `/p/event` forwards Plausible events from the Cloudflare Worker.
+- Verify `/p/js/script` returns JavaScript and `/p/event` forwards Plausible events from the Cloudflare Worker.
 - Verify `/privacy`, `/terms`, and `/security`.
 - Check desktop and mobile layouts.

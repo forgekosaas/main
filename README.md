@@ -78,7 +78,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_CLARITY_PROJECT_ID=x98rtg96a8
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=forgeko.com
-NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=/p/js/script.js
+NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=/p/js/script
 NEXT_PUBLIC_PLAUSIBLE_ENDPOINT=/p/event
 ```
 
@@ -159,7 +159,7 @@ Key API routes:
 - `POST /api/waitlist`
 - `POST /api/feedback`
 - `POST /api/events`
-- `GET /p/js/script.js`
+- `GET /p/js/script`
 - `POST /p/event`
 
 Public discovery files:
