@@ -3,13 +3,7 @@ import { Resend } from "resend";
 import { getServerEnv } from "@/lib/env";
 import type { WaitlistSource } from "@/lib/waitlist";
 
-export async function sendConfirmationEmail({
-  email,
-  confirmUrl
-}: {
-  email: string;
-  confirmUrl: string;
-}) {
+export async function sendWaitlistWelcomeEmail({ email }: { email: string }) {
   const env = getServerEnv();
   const resend = new Resend(env.resendApiKey);
 
@@ -21,20 +15,20 @@ export async function sendConfirmationEmail({
     text: [
       "You're in.",
       "",
-      "We'll reach out when private beta opens — no spam, no pitch decks, just a real update when something is ready.",
+      "Thanks for joining the Forgeko waitlist.",
       "",
-      "In the meantime, confirm your email so we know it's really you.",
+      "We'll let you know when the first version is ready.",
       "",
-      `Confirm my email: ${confirmUrl}`,
+      "If another solo founder comes to mind, feel free to share https://forgeko.com.",
       "",
       "— The Forgeko team"
     ].join("\n"),
     html: `
       <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#111111">
         <p>You're in.</p>
-        <p>We'll reach out when private beta opens — no spam, no pitch decks, just a real update when something is ready.</p>
-        <p>In the meantime, confirm your email so we know it's really you.</p>
-        <p><a href="${confirmUrl}" style="color:#4F46E5">Confirm my email →</a></p>
+        <p>Thanks for joining the Forgeko waitlist.</p>
+        <p>We'll let you know when the first version is ready.</p>
+        <p>If another solo founder comes to mind, feel free to share <a href="https://forgeko.com" style="color:#4F46E5">forgeko.com</a>.</p>
         <p>— The Forgeko team</p>
       </div>
     `

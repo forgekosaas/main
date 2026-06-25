@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy">
       <p>
-        Forgeko collects the email address you submit to join the waitlist, the consent state attached to that submission, basic technical request metadata, and confirmation status.
+        Forgeko collects the email address you submit to join the waitlist, the consent state attached to that submission, basic technical request metadata, and waitlist status.
       </p>
       <p>
         We use this information to manage the private beta waitlist, send product updates you requested, prevent abuse, and measure whether the landing page is working.

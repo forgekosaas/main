@@ -45,11 +45,11 @@ async function refreshPendingWaitlistSignup(id: string, row: WaitlistInsert) {
       country: row.country,
       user_agent: row.user_agent,
       consent_marketing: row.consent_marketing,
-      confirmation_token_hash: row.confirmation_token_hash,
-      confirmation_sent_at: row.confirmation_sent_at,
+      confirmed: row.confirmed,
+      confirmed_at: row.confirmed_at,
       resend_message_id: null,
       metadata: row.metadata,
-      updated_at: row.confirmation_sent_at
+      updated_at: row.confirmed_at ?? new Date().toISOString()
     })
     .eq("id", id);
 
@@ -58,7 +58,7 @@ async function refreshPendingWaitlistSignup(id: string, row: WaitlistInsert) {
   }
 }
 
-export async function recordConfirmationEmailSent(email: string, messageId: string) {
+export async function recordWaitlistEmailSent(email: string, messageId: string) {
   const supabase = createSupabaseServiceClient();
   const { error } = await supabase
     .from("waitlist")
@@ -71,28 +71,6 @@ export async function recordConfirmationEmailSent(email: string, messageId: stri
   if (error) {
     throw error;
   }
-}
-
-export async function confirmByTokenHash(tokenHash: string) {
-  const supabase = createSupabaseServiceClient();
-
-  const { data, error } = await supabase
-    .from("waitlist")
-    .update({
-      confirmed: true,
-      confirmed_at: new Date().toISOString(),
-      confirmation_token_hash: null,
-      updated_at: new Date().toISOString()
-    })
-    .eq("confirmation_token_hash", tokenHash)
-    .select("id")
-    .maybeSingle();
-
-  if (error) {
-    throw error;
-  }
-
-  return { found: Boolean(data) };
 }
 
 export async function insertPageEvent({

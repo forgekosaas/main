@@ -3,7 +3,7 @@
 ## Required Services
 
 - Cloudflare account with `forgeko.com` configured.
-- Supabase project with `supabase/migrations/001_waitlist.sql` applied.
+- Supabase project with all SQL files in `supabase/migrations/` applied.
 - Resend account with the sending domain verified.
 - Optional Microsoft Clarity project id.
 - Plausible script URL from your Plausible project, proxied through the Forgeko Cloudflare Worker.
@@ -70,14 +70,14 @@ npm run upload
 Apply:
 
 ```text
-supabase/migrations/001_waitlist.sql
+supabase/migrations/*.sql
 ```
 
 The migration creates:
 
 - `waitlist`
 - `page_events`
-- indexes for confirmation and reporting
+- indexes for waitlist reporting
 - RLS policies for public inserts and service-role operations
 
 ## Runtime QA
@@ -85,10 +85,9 @@ The migration creates:
 Before public launch:
 
 - Submit a waitlist email with explicit consent.
-- Confirm that Resend sends the confirmation email.
+- Confirm that Resend sends the short welcome email.
 - Confirm that `FORGEKO_ADMIN_EMAIL` receives the "A NEW USER" notification for a newly created waitlist signup.
 - Submit the contact feedback form and confirm the message reaches `FORGEKO_ADMIN_EMAIL`.
-- Click the confirmation URL and verify `confirmed=true`.
 - Verify `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt`, `/humans.txt`, and `/security.txt`.
 - Verify `/favicon.ico` and `/favicon-48.png` return `200`, and that the homepage includes both favicon links. Google may need a recrawl before the favicon appears in `site:forgeko.com`; request indexing in Search Console after deploy if needed.
 - Verify `curl -I https://forgeko.com/` includes `Link: </.well-known/api-catalog>; rel="api-catalog"`.

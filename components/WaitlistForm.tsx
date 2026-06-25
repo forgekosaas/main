@@ -33,13 +33,13 @@ export function WaitlistForm() {
 
     if (response.ok && body?.code === "ALREADY_JOINED") {
       setState("duplicate");
-      setMessage("You're already on the list. If you have not confirmed yet, check your inbox.");
+      setMessage("You're already on the list.");
       return;
     }
 
     if (response.ok) {
       setState("success");
-      setMessage("Check your inbox to confirm your email.");
+      setMessage("You're on the list. We'll email you when the first version is ready.");
       return;
     }
 

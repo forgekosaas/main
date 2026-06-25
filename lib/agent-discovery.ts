@@ -74,8 +74,8 @@ export function getOpenApiDocument(siteUrl: string) {
             }
           },
           responses: {
-            "201": { description: "Signup created and confirmation email sent." },
-            "200": { description: "Email is already confirmed on the waitlist." },
+            "201": { description: "Signup created and welcome email sent." },
+            "200": { description: "Email is already on the waitlist." },
             "400": { description: "Invalid email or missing consent." },
             "500": { description: "Waitlist service error." }
           }

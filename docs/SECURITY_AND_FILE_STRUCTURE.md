@@ -137,7 +137,6 @@ Private operations should happen in server routes under `app/api/`.
 Current examples:
 
 - `app/api/waitlist/route.ts`
-- `app/api/waitlist/confirm/route.ts`
 - `app/api/feedback/route.ts`
 - `app/p/event/route.ts`
 

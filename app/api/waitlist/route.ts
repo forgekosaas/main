@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getSiteUrl } from "@/lib/env";
-import { sendConfirmationEmail, sendNewWaitlistUserEmail } from "@/lib/email";
-import { recordConfirmationEmailSent, upsertWaitlist } from "@/lib/waitlist-repository";
+import { sendNewWaitlistUserEmail, sendWaitlistWelcomeEmail } from "@/lib/email";
+import { recordWaitlistEmailSent, upsertWaitlist } from "@/lib/waitlist-repository";
 import { submitWaitlistSignup } from "@/lib/waitlist";
 
 export const dynamic = "force-dynamic";
@@ -28,11 +27,10 @@ export async function POST(request: Request) {
       }
     },
     deps: {
-      siteUrl: getSiteUrl(),
       upsertWaitlist,
-      sendConfirmationEmail,
+      sendWaitlistWelcomeEmail,
       sendNewWaitlistUserEmail,
-      recordConfirmationEmailSent
+      recordWaitlistEmailSent
     }
   });
 
@@ -49,7 +47,7 @@ function messageForCode(code: string) {
     case "ALREADY_JOINED":
       return "You're already on the Forgeko waitlist.";
     case "CREATED":
-      return "Check your inbox to confirm your email.";
+      return "You're on the list. We'll email you when the first version is ready.";
     default:
       return "Something went wrong. Please try again.";
   }

@@ -6,8 +6,7 @@ export const allowedEventTypes = [
   "Feedback_FormFocus",
   "Feedback_Submit",
   "Waitlist_FormFocus",
-  "Waitlist_Submit",
-  "Waitlist_Confirmed"
+  "Waitlist_Submit"
 ] as const;
 
 export type AllowedEventType = (typeof allowedEventTypes)[number];

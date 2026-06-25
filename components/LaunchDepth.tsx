@@ -13,7 +13,7 @@ const checkpoints = [
   },
   {
     title: "Operational setup without losing the strategy",
-    body: "Domain, SSL, payments, consent, event tracking, confirmation emails, and launch metrics all need the same context. When those steps are handled after the page is written, the founder often re-decides positioning in five dashboards. Forgeko keeps the launch system connected."
+    body: "Domain, SSL, payments, consent, event tracking, waitlist emails, and launch metrics all need the same context. When those steps are handled after the page is written, the founder often re-decides positioning in five dashboards. Forgeko keeps the launch system connected."
   },
   {
     title: "A feedback loop after the first visitors arrive",

@@ -10,7 +10,7 @@ The site is designed to validate demand, explain the product positioning, collec
 - React and TypeScript
 - Tailwind CSS
 - Supabase for waitlist and event storage
-- Resend for confirmation, feedback, and admin notification emails
+- Resend for waitlist welcome, feedback, and admin notification emails
 - Microsoft Clarity and first-party Plausible proxy for analytics
 - OpenNext Cloudflare for Worker deployment
 - Vitest and ESLint for verification
@@ -20,7 +20,7 @@ The site is designed to validate demand, explain the product positioning, collec
 ```text
 app/                 Next.js routes, metadata, API handlers, legal pages
 components/          Landing sections, forms, and client UI
-lib/                 Waitlist, feedback, analytics, Supabase, email, crypto helpers
+lib/                 Waitlist, feedback, analytics, Supabase, and email helpers
 public/              Public files served directly by URL
 assets/brand/        Source logo exports and brand assets not served directly
 supabase/migrations/ Database schema and migrations
@@ -99,13 +99,13 @@ PLAUSIBLE_ORIGIN=https://plausible.io
 
 ## Database
 
-Apply the Supabase migration before testing real waitlist flows:
+Apply the Supabase migrations before testing real waitlist flows:
 
 ```text
-supabase/migrations/001_waitlist.sql
+supabase/migrations/*.sql
 ```
 
-The migration creates waitlist storage, page event storage, indexes, and RLS policies.
+The migrations create waitlist storage, page event storage, indexes, and RLS policies.
 
 ## Verification
 
@@ -153,12 +153,10 @@ Key pages:
 - `/terms`
 - `/security`
 - `/docs/api`
-- `/waitlist/confirmed`
 
 Key API routes:
 
 - `POST /api/waitlist`
-- `GET /api/waitlist/confirm`
 - `POST /api/feedback`
 - `POST /api/events`
 - `GET /p/js/script.js`

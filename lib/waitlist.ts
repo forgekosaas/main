@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { createConfirmationToken, hashToken } from "@/lib/crypto";
-
 export const waitlistSources = ["hero", "solution", "cta_final"] as const;
 export type WaitlistSource = (typeof waitlistSources)[number];
 
@@ -25,22 +23,21 @@ export interface WaitlistInsert {
   country: string | null;
   user_agent: string | null;
   consent_marketing: boolean;
-  confirmation_token_hash: string;
-  confirmation_sent_at: string;
+  confirmed: boolean;
+  confirmed_at: string | null;
   metadata: Record<string, unknown>;
 }
 
 export interface WaitlistDeps {
-  siteUrl: string;
   upsertWaitlist: (row: WaitlistInsert) => Promise<{ status: "created" | "pending_duplicate" | "confirmed_duplicate" }>;
-  sendConfirmationEmail: (message: { email: string; confirmUrl: string }) => Promise<{ id?: string }>;
+  sendWaitlistWelcomeEmail: (message: { email: string }) => Promise<{ id?: string }>;
   sendNewWaitlistUserEmail?: (message: {
     email: string;
     source: WaitlistSource;
     country: string | null;
     userAgent: string | null;
   }) => Promise<{ id?: string }>;
-  recordConfirmationEmailSent?: (email: string, messageId: string) => Promise<void>;
+  recordWaitlistEmailSent?: (email: string, messageId: string) => Promise<void>;
 }
 
 export type WaitlistResult =
@@ -70,8 +67,6 @@ export async function submitWaitlistSignup({
   }
 
   try {
-    const token = createConfirmationToken();
-    const confirmationTokenHash = await hashToken(token);
     const now = new Date().toISOString();
 
     const upsertResult = await deps.upsertWaitlist({
@@ -80,8 +75,8 @@ export async function submitWaitlistSignup({
       country: requestMeta.country ?? null,
       user_agent: requestMeta.userAgent ?? null,
       consent_marketing: true,
-      confirmation_token_hash: confirmationTokenHash,
-      confirmation_sent_at: now,
+      confirmed: true,
+      confirmed_at: now,
       metadata: requestMeta.metadata ?? {}
     });
 
@@ -89,16 +84,10 @@ export async function submitWaitlistSignup({
       return { ok: true, status: 200, code: "ALREADY_JOINED" };
     }
 
-    const confirmUrl = new URL("/api/waitlist/confirm", deps.siteUrl);
-    confirmUrl.searchParams.set("token", token);
+    const emailResult = await deps.sendWaitlistWelcomeEmail({ email: parsed.data.email });
 
-    const emailResult = await deps.sendConfirmationEmail({
-      email: parsed.data.email,
-      confirmUrl: confirmUrl.toString()
-    });
-
-    if (emailResult.id && deps.recordConfirmationEmailSent) {
-      await deps.recordConfirmationEmailSent(parsed.data.email, emailResult.id).catch((error) => {
+    if (emailResult.id && deps.recordWaitlistEmailSent) {
+      await deps.recordWaitlistEmailSent(parsed.data.email, emailResult.id).catch((error) => {
         console.error("Failed to record waitlist email provider id", error);
       });
     }

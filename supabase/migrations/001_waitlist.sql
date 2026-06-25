@@ -11,8 +11,6 @@ create table if not exists waitlist (
   confirmed boolean not null default false,
   confirmed_at timestamptz,
   consent_marketing boolean not null default false,
-  confirmation_token_hash text,
-  confirmation_sent_at timestamptz,
   resend_message_id text,
   metadata jsonb not null default '{}'::jsonb
 );
@@ -26,7 +24,6 @@ create table if not exists page_events (
 );
 
 create index if not exists idx_waitlist_confirmed_created_at on waitlist (confirmed, created_at desc);
-create index if not exists idx_waitlist_confirmation_token_hash on waitlist (confirmation_token_hash) where confirmation_token_hash is not null;
 create index if not exists idx_page_events_type_created_at on page_events (event_type, created_at desc);
 
 alter table waitlist enable row level security;

@@ -289,7 +289,6 @@ create policy "Service role read" on waitlist
 | Endpoint | Metodo | Funzione |
 |---|---|---|
 | `/api/waitlist` | POST | Valida email, salva su Supabase, invia conferma via Resend |
-| `/api/waitlist/confirm` | GET | Gestisce doppio opt-in via token, setta `confirmed: true` |
 | `/api/events` | POST | Salva eventi comportamentali su `page_events`, fire-and-forget |
 
 **Email transazionale (Resend)**
@@ -302,7 +301,7 @@ You're in.
 We'll reach out when private beta opens — no spam, no pitch decks,
 just a real update when something is ready.
 
-In the meantime, confirm your email so we know it's really you.
+We'll let you know when the first version is ready.
 
 [Confirm my email →]
 
@@ -577,7 +576,7 @@ plausible('Scroll_HowItWorks')
 plausible('Scroll_SocialProof')
 plausible('Waitlist_FormFocus')
 plausible('Waitlist_Submit')
-plausible('Waitlist_Confirmed')
+plausible('Waitlist_Submit')
 ```
 
 **Query di monitoraggio kill metric**
@@ -629,7 +628,7 @@ ANALYTICS
 □ Implementare i 7 eventi custom
 
 PRE-LAUNCH QA
-□ Form waitlist testato end-to-end (submit → email → confirmed: true)
+□ Form waitlist testato end-to-end (submit → welcome email → admin notification)
 □ robots.txt, sitemap.xml, llms.txt accessibili pubblicamente
 □ OG image testata su opengraph.xyz
 □ Schema JSON-LD validato su Google Rich Results Test
