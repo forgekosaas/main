@@ -41,6 +41,16 @@ const nextConfig = {
       }
     ];
   },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/p/js/script.js",
+          destination: "/p/js/script"
+        }
+      ]
+    };
+  },
   async redirects() {
     return [
       {

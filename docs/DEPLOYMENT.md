@@ -33,6 +33,40 @@ Do not expose `SUPABASE_SERVICE_ROLE_KEY` or `RESEND_API_KEY` to the client.
 Use `hello@forgeko.com` only after verifying `forgeko.com` in Resend. Keep `forgeko.saas@gmail.com` as the reply-to and admin notification inbox unless a dedicated mailbox is configured.
 Keep Plausible first-party in the browser: `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL` must stay on `/p/js/script.js`, and `NEXT_PUBLIC_PLAUSIBLE_ENDPOINT` must stay on `/p/event`. If you run a self-hosted Plausible instance, point server-side `PLAUSIBLE_SCRIPT_URL` and `PLAUSIBLE_ORIGIN` to that instance; do not expose that origin as a public client script URL.
 
+For Cloudflare Workers Builds, set the same non-secret Plausible values in both places:
+
+- **Build variables and secrets**: required so Next.js can inline `NEXT_PUBLIC_PLAUSIBLE_*`.
+- **Runtime environment variables**: required so the Worker routes can read `PLAUSIBLE_SCRIPT_URL` and `PLAUSIBLE_ORIGIN`.
+
+`PLAUSIBLE_SCRIPT_URL` must be copied from Plausible **Site settings -> General -> Site Installation**. It looks like `https://plausible.io/js/pa-XXXXX.js`. Do not use the old generic `/js/script.js` URL for the upstream script.
+
+## Plausible Worker Proxy
+
+The app serves Plausible through same-origin Cloudflare Worker routes:
+
+- Browser script: `/p/js/script.js`
+- Event endpoint: `/p/event`
+
+The client snippet initializes Plausible with:
+
+```js
+plausible.init({ endpoint: "/p/event" });
+```
+
+This matches Plausible's current proxy guidance for the updated script, where custom endpoints are configured through `plausible.init({ endpoint })` instead of the old `data-api` attribute.
+
+After deploy, verify the proxy:
+
+```bash
+curl -I https://forgeko.com/p/js/script.js
+curl -i -X POST https://forgeko.com/p/event \
+  -H "Content-Type: application/json" \
+  -H "User-Agent: Forgeko deploy check" \
+  --data '{"name":"pageview","url":"https://forgeko.com/","domain":"forgeko.com"}'
+```
+
+Expected result: the script returns JavaScript, the event endpoint returns `202 Accepted`, and the response does not include `x-plausible-dropped: 1`.
+
 ## Pre-Deploy Checks
 
 ```bash

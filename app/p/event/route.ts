@@ -1,4 +1,4 @@
-import { buildPlausibleEventRequest } from "@/lib/plausible-proxy";
+import { buildPlausibleEventRequest, buildPlausibleEventResponseHeaders } from "@/lib/plausible-proxy";
 
 const defaultPlausibleOrigin = "https://plausible.io";
 
@@ -12,10 +12,6 @@ export async function POST(request: Request) {
 
   return new Response(upstream.body, {
     status: upstream.status,
-    headers: {
-      "Content-Type": upstream.headers.get("content-type") || "application/json",
-      "Cache-Control": "no-store",
-      "X-Content-Type-Options": "nosniff"
-    }
+    headers: buildPlausibleEventResponseHeaders(upstream.headers)
   });
 }
