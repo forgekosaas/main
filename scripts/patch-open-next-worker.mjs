@@ -17,24 +17,51 @@ if (!worker.includes(marker)) {
     "export default {",
     `// ${marker}
 const forgekoDefaultPlausibleScriptUrl = "https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js";
+const forgekoPlausibleScriptHeaders = {
+    Accept: "application/javascript,text/javascript,*/*",
+};
 
-async function handleForgekoPlausibleScriptRequest(env) {
-    const scriptUrl = env.PLAUSIBLE_SCRIPT_URL || forgekoDefaultPlausibleScriptUrl;
+function buildForgekoPlausibleRetryUrl(scriptUrl) {
+    const retryUrl = new URL(scriptUrl);
+    retryUrl.searchParams.set("forgeko_retry", Date.now().toString());
+    return retryUrl.toString();
+}
+
+async function fetchForgekoPlausibleScript(scriptUrl) {
     const upstream = await fetch(scriptUrl, {
-        headers: {
-            Accept: "application/javascript,text/javascript,*/*",
-        },
+        headers: forgekoPlausibleScriptHeaders,
         cf: {
-            cacheTtl: 3600,
+            cacheTtlByStatus: {
+                "200-299": 3600,
+                "300-399": 60,
+                "400-599": 0,
+            },
             cacheEverything: true,
         },
     });
+
+    if (upstream.ok) {
+        return upstream;
+    }
+
+    return fetch(buildForgekoPlausibleRetryUrl(forgekoDefaultPlausibleScriptUrl), {
+        headers: forgekoPlausibleScriptHeaders,
+        cf: {
+            cacheTtl: 0,
+        },
+    });
+}
+
+async function handleForgekoPlausibleScriptRequest(env) {
+    const scriptUrl = env.PLAUSIBLE_SCRIPT_URL || forgekoDefaultPlausibleScriptUrl;
+    const upstream = await fetchForgekoPlausibleScript(scriptUrl);
+    const isCacheable = upstream.status >= 200 && upstream.status < 300;
 
     return new Response(upstream.body, {
         status: upstream.status,
         headers: {
             "Content-Type": upstream.headers.get("content-type") || "application/javascript; charset=utf-8",
-            "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+            "Cache-Control": isCacheable ? "public, max-age=3600, stale-while-revalidate=86400" : "no-store",
             "X-Content-Type-Options": "nosniff",
         },
     });

@@ -44,6 +44,8 @@ describe("OpenNext Worker patch", () => {
       expect(patchedWorker).toContain(
         "return handleForgekoPlausibleScriptRequest(env);"
       );
+      expect(patchedWorker).toContain("cacheTtlByStatus");
+      expect(patchedWorker).toContain("forgeko_retry");
 
       execFileSync(process.execPath, [resolve("scripts/patch-open-next-worker.mjs")], {
         cwd,
