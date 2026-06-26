@@ -3,7 +3,8 @@ import { join } from "node:path";
 
 const workerPath = join(".open-next", "worker.js");
 const marker = "Forgeko Plausible script proxy patch";
-const routeMarker = "handleForgekoPlausibleScriptRequest(env)";
+const routeMarker =
+  'url.pathname === "/p/js/script" || url.pathname === "/p/js/script.js"';
 
 if (!existsSync(workerPath)) {
   throw new Error(`${workerPath} does not exist. Run opennextjs-cloudflare build first.`);
@@ -44,13 +45,19 @@ export default {`
 }
 
 if (!worker.includes(routeMarker)) {
-  worker = worker.replace(
+  const patchedWorker = worker.replace(
     "const url = new URL(request.url);",
     `const url = new URL(request.url);
             if (url.pathname === "/p/js/script" || url.pathname === "/p/js/script.js") {
                 return handleForgekoPlausibleScriptRequest(env);
             }`
   );
+
+  if (patchedWorker === worker) {
+    throw new Error("Could not find OpenNext request URL initialization to patch.");
+  }
+
+  worker = patchedWorker;
 }
 
 writeFileSync(workerPath, worker);
