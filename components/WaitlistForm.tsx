@@ -4,12 +4,15 @@ import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { FormEvent, useState } from "react";
 
 import { trackEvent } from "@/lib/analytics-client";
+import { TurnstileField } from "@/components/TurnstileField";
 
 type FormState = "idle" | "submitting" | "success" | "duplicate" | "error";
+const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "0x4AAAAAADr5wNAH221DWy6b";
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [consentMarketing, setConsentMarketing] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [state, setState] = useState<FormState>("idle");
   const [message, setMessage] = useState("");
 
@@ -19,13 +22,20 @@ export function WaitlistForm() {
     setMessage("");
     trackEvent("Waitlist_Submit", { source: "cta_final" });
 
+    if (turnstileSiteKey && !turnstileToken) {
+      setState("error");
+      setMessage("Complete the security check and try again.");
+      return;
+    }
+
     const response = await fetch("/api/waitlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
         consentMarketing,
-        source: "cta_final"
+        source: "cta_final",
+        turnstileToken
       })
     });
 
@@ -90,6 +100,7 @@ export function WaitlistForm() {
           .
         </span>
       </label>
+      <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstileToken} className="mt-5" />
       {message ? (
         <p
           className={`mt-5 flex items-start gap-2 text-sm leading-6 ${state === "error" ? "text-red-300" : "text-neutral-300"}`}

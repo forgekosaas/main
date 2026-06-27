@@ -16,5 +16,8 @@
   },
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "NEXT_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAADr5wNAH221DWy6b"
   }
 }

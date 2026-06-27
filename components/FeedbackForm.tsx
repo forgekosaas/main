@@ -4,12 +4,15 @@ import { Check, Loader2, Send } from "lucide-react";
 import { FormEvent, useState } from "react";
 
 import { trackEvent } from "@/lib/analytics-client";
+import { TurnstileField } from "@/components/TurnstileField";
 
 type FormState = "idle" | "submitting" | "success" | "error";
+const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "0x4AAAAAADr5wNAH221DWy6b";
 
 export function FeedbackForm() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [state, setState] = useState<FormState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -19,13 +22,20 @@ export function FeedbackForm() {
     setStatusMessage("");
     trackEvent("Feedback_Submit", { source: "contact" });
 
+    if (turnstileSiteKey && !turnstileToken) {
+      setState("error");
+      setStatusMessage("Complete the security check and try again.");
+      return;
+    }
+
     const response = await fetch("/api/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
         message,
-        source: "contact"
+        source: "contact",
+        turnstileToken
       })
     });
 
@@ -87,6 +97,7 @@ export function FeedbackForm() {
           Send feedback
         </button>
       </div>
+      <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstileToken} className="mt-5" />
       {statusMessage ? (
         <p
           className={`mt-5 flex items-start gap-2 text-sm leading-6 ${state === "error" ? "text-red-300" : "text-neutral-300"}`}
