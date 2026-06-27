@@ -35,21 +35,11 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              `default-src 'self'; script-src 'self' 'unsafe-inline'${devScriptPolicy} https://*.forgeko.com https://www.clarity.ms https://scripts.clarity.ms https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.forgeko.com https://www.clarity.ms https://*.clarity.ms; connect-src 'self' https://*.forgeko.com https://*.supabase.co https://api.resend.com https://www.clarity.ms https://*.clarity.ms https://cloudflareinsights.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+              `default-src 'self'; script-src 'self' 'unsafe-inline'${devScriptPolicy} https://*.forgeko.com https://cloud.umami.is https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.forgeko.com; connect-src 'self' https://*.forgeko.com https://*.supabase.co https://api.resend.com https://cloud.umami.is https://cloudflareinsights.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
           }
         ]
       }
     ];
-  },
-  async rewrites() {
-    return {
-      beforeFiles: [
-        {
-          source: "/p/js/script.js",
-          destination: "/p/js/script"
-        }
-      ]
-    };
   },
   async redirects() {
     return [

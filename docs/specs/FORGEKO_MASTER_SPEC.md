@@ -351,7 +351,7 @@ Il modello è progettato per massimizzare la penetrazione (Free tier generoso) e
 | **Supabase Pro** | DB PostgreSQL + Auth + Vault + Storage | €25 | 8GB DB, 250MB Storage, 50k MAU Auth |
 | **Browserless.io** | Rendering Headless (Puppeteer) | €0 (free tier 1000 req/mese) | Scala a €30/mese se >1000 req |
 | **Resend** | Email Transactional | €0 (free tier 3k email/mese) | Scala a €20/mese se >3k email |
-| **Plausible** | Analytics (self-hosted su Vercel) | €0 | Alternativa: €9/mese cloud |
+| **Umami** | Analytics cloud | €0 | Script pubblico gestito da Umami Cloud |
 | **Domain Renewals** | `.app`, `.com` | €2 (prorated) | ~€24/anno |
 | **Redis (Upstash)** | Rate Limiting + Queue | €0 (free tier 10k req/giorno) | Scala a €10/mese se >10k req/giorno |
 | **TOTALE COSTI FISSI** | | **€47/mese** | Scenario conservativo con Supabase Pro |
@@ -685,7 +685,7 @@ L'architettura del prodotto è organizzata in 4 Dipartimenti logici, ciascuno co
 *   **Input Utente:** Configurazione finale domini, analytics, documenti legali.
 *   **Processo AI:**
     1. Genera il **Legal Kit Dinamico** leggendo le integrazioni attive (Step 6) + `strategic_canvas.json`.
-    2. Configura la Dashboard di Growth collegando PostHog/Plausible.
+    2. Configura la Dashboard di Growth collegando PostHog/Umami.
     3. Attiva il **Report Settimanale AI** (cron job).
 *   **Output:** Documenti legali (Privacy, ToS, Cookie) + Dashboard metriche attiva + dominio custom configurato.
 *   **Criterio di Completamento:** Deploy su Vercel e attivazione dominio custom. Il progetto entra in stato `active`.
@@ -1342,7 +1342,7 @@ Per servizi senza webhook affidabili:
 **Architettura del Report:**
 
 1. **Trigger:** Cron job ogni Domenica alle 23:00 UTC.
-2. **Data Collection:** Query su PostHog/Plausible:
+2. **Data Collection:** Query su PostHog/Umami:
    *   Visite totali + trend vs settimana precedente
    *   Tasso di conversione visitatori → email/signup
    *   Revenue (se Stripe connesso)
@@ -1624,7 +1624,7 @@ Le assunzioni economiche, normative e di mercato non sono verità permanenti. Og
 | **Prezzi modelli AI** | Snapshot Q2 2026 indicato in Sezione 2.2 | Pricing ufficiale provider AI | Engineering/Finance | Mensile | Cambio listino o modello |
 | **Costo infra base** | €47/mese | Dashboard Vercel, Supabase, Browserless, Resend, Upstash | Finance/Ops | Mensile | Superamento soglia 20% |
 | **Free-to-paid conversion target** | >3% entro 30gg | Lemon Squeezy + analytics cohort | Growth/Finance | Settimanale in beta | 2 settimane sotto target |
-| **Activation target** | >40% Step 3 entro 7gg | PostHog/Plausible + DB events | Product | Settimanale | Drop >20% vs media 7gg |
+| **Activation target** | >40% Step 3 entro 7gg | PostHog/Umami + DB events | Product | Settimanale | Drop >20% vs media 7gg |
 | **TAM/SAM/SOM** | Sezione 1.4 | Fonti pubbliche + research founder | Growth/Founder | Trimestrale | Pitch investor o nuovo ICP |
 | **ICP Fase 1** | Builder tech-frustrato | Interviste, waitlist, conversioni canali | Product/Growth | Mensile | Canale con conversione superiore su altro ICP |
 | **Legal Kit posture** | Template assistiti | Counsel esterno + feedback utenti | Ops/Legal | Trimestrale | Reclamo, cambio normativo, espansione country |
@@ -1650,7 +1650,7 @@ La landing page pre-release avrà un documento operativo separato e dedicato. Qu
 | **FASE 4 — SEO Classico** | Keyword research, meta title, meta description, heading structure, schema markup, Open Graph e performance/Core Web Vitals. |
 | **FASE 5 — AI SEO** | Ottimizzazione per citazioni e recupero da ChatGPT, Perplexity, Claude e motori answer-first; entità, definizioni, pagine citabili e struttura semantica. |
 | **FASE 6 — Pubblicazione** | Dominio, hosting, deploy, DNS, SSL e procedura passo-passo di rilascio. |
-| **FASE 7 — Analytics & Tracking** | Plausible o PostHog, evento conversione waitlist, funnel, eventuale heatmap e report di performance. |
+| **FASE 7 — Analytics & Tracking** | Umami o PostHog, evento conversione waitlist, funnel e report di performance. |
 
 **Vincoli che il documento landing deve rispettare:**
 *   Parlare all'ICP Fase 1: Builder Tech-Frustrato, non al solopreneur non tecnico generalista.
@@ -1683,7 +1683,7 @@ L'MVP non deve provare a implementare l'intera visione. Deve validare: Fast Lane
 | **Browserless.io** | Rendering preview | HTML/render jobs, screenshot | Media | Quota, privacy output, latency | Playwright self-hosted worker | Engineering | Mensile |
 | **Upstash Redis** | Rate limit/cache | User id, counters, metadata | Media | Rate limit failure, cost spike | In-memory fallback degraded, Supabase table counters | Engineering | Mensile |
 | **GitHub** | Export codice | OAuth token, repo metadata | Alta | Token scope, repo creation failure | Download zip export, manual push guide | Engineering | Mensile |
-| **Sentry/PostHog/Plausible** | Monitoring/analytics | Eventi, errori, usage | Media | PII leakage, compliance | PII masking, self-hosted analytics | Engineering/Ops | Mensile |
+| **Sentry/PostHog/Umami** | Monitoring/analytics | Eventi, errori, usage | Media | PII leakage, compliance | PII masking, analytics minimali | Engineering/Ops | Mensile |
 
 **Routine operations:**
 *   **Daily:** controllare errori P0/P1, costi AI, webhook failure, signup/waitlist, deliverability.
@@ -2247,7 +2247,7 @@ Questo documento rappresenta la **specifica completa e vincolante v1.4** per lo 
 **Settimane 9-10: Dipartimento 4**
 - Step 7: Test & Ottimizzazione (Audit)
 - Step 8: Dashboard Crescita + Legal Kit Dinamico
-- PostHog/Plausible integration
+- PostHog/Umami integration
 - Report Settimanale AI (cron job + template email)
 
 **Settimane 11-12: Polish + Beta Launch**

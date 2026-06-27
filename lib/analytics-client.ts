@@ -2,12 +2,6 @@
 
 import type { AllowedEventType } from "@/lib/events";
 
-declare global {
-  interface Window {
-    plausible?: (eventName: string, options?: { props?: Record<string, unknown> }) => void;
-  }
-}
-
 const sessionStorageKey = "forgeko_session_id";
 
 function getSessionId() {
@@ -29,8 +23,6 @@ export function trackEvent(eventType: AllowedEventType, metadata: Record<string,
   if (typeof window === "undefined") {
     return;
   }
-
-  window.plausible?.(eventType, { props: metadata });
 
   void fetch("/api/events", {
     method: "POST",

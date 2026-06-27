@@ -6,7 +6,6 @@ import { PageAmbientField } from "@/components/PageAmbientField";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://forgeko.com";
-const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID ?? "x98rtg96a8";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -76,20 +75,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       suppressHydrationWarning
     >
       <head>
-        {clarityProjectId ? (
-          <script
-            type="text/javascript"
-            dangerouslySetInnerHTML={{
-              __html: `
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "${clarityProjectId}");
-`
-            }}
-          />
-        ) : null}
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="87379995-b261-45d8-b9fc-e4c83cc3f4a6"
+        />
       </head>
       <body>
         <PageAmbientField />

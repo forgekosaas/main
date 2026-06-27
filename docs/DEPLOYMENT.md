@@ -5,8 +5,7 @@
 - Cloudflare account with `forgeko.com` configured.
 - Supabase project with all SQL files in `supabase/migrations/` applied.
 - Resend account with the sending domain verified.
-- Optional Microsoft Clarity project id.
-- Plausible script URL from your Plausible project, proxied through the Forgeko Cloudflare Worker.
+- Umami Cloud tracking for public website analytics.
 
 ## Environment Variables
 
@@ -21,53 +20,34 @@ RESEND_API_KEY=
 RESEND_FROM_EMAIL=hello@forgeko.com
 RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
 FORGEKO_ADMIN_EMAIL=forgeko.saas@gmail.com
-NEXT_PUBLIC_CLARITY_PROJECT_ID=x98rtg96a8
-NEXT_PUBLIC_PLAUSIBLE_DOMAIN=forgeko.com
-NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=/p/js/script
-NEXT_PUBLIC_PLAUSIBLE_ENDPOINT=/p/event
-PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js
-PLAUSIBLE_ORIGIN=https://plausible.io
+FOUNDER_HUB_ANALYTICS_TOKEN=
 ```
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` or `RESEND_API_KEY` to the client.
 Use `hello@forgeko.com` only after verifying `forgeko.com` in Resend. Keep `forgeko.saas@gmail.com` as the reply-to and admin notification inbox unless a dedicated mailbox is configured.
-Keep Plausible first-party in the browser: `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL` must stay on `/p/js/script`, and `NEXT_PUBLIC_PLAUSIBLE_ENDPOINT` must stay on `/p/event`. If you run a self-hosted Plausible instance, point server-side `PLAUSIBLE_SCRIPT_URL` and `PLAUSIBLE_ORIGIN` to that instance; do not expose that origin as a public client script URL.
+Keep `FOUNDER_HUB_ANALYTICS_TOKEN` secret. It protects `/api/analytics/summary`, which Founder Hub uses for private funnel reporting.
 
-For Cloudflare Workers Builds, set the same non-secret Plausible values in both places:
+## Umami Analytics
 
-- **Build variables and secrets**: required so Next.js can inline `NEXT_PUBLIC_PLAUSIBLE_*`.
-- **Runtime environment variables**: required so the Worker routes can read `PLAUSIBLE_SCRIPT_URL` and `PLAUSIBLE_ORIGIN`.
+The root layout loads Umami Cloud directly:
 
-`PLAUSIBLE_SCRIPT_URL` must be copied from Plausible **Site settings -> General -> Site Installation**. It looks like `https://plausible.io/js/pa-XXXXX.js`. Do not use the old generic `/js/script.js` URL for the upstream script.
-
-## Plausible Worker Proxy
-
-The app serves Plausible through same-origin Cloudflare Worker routes:
-
-- Browser script: `/p/js/script`
-- Event endpoint: `/p/event`
-
-`npm run cf:build` patches the generated `.open-next/worker.js` so `/p/js/script` and legacy `/p/js/script.js` are served directly by the Cloudflare Worker before requests enter the Next.js router.
-
-The client snippet initializes Plausible with:
-
-```js
-plausible.init({ endpoint: "/p/event" });
+```html
+<script defer src="https://cloud.umami.is/script.js" data-website-id="87379995-b261-45d8-b9fc-e4c83cc3f4a6"></script>
 ```
 
-This matches Plausible's current proxy guidance for the updated script, where custom endpoints are configured through `plausible.init({ endpoint })` instead of the old `data-api` attribute.
+No Umami environment variable or Cloudflare Worker proxy is required. The Content Security Policy must allow `https://cloud.umami.is` for script loading and event delivery.
 
-After deploy, verify the proxy:
+After deploy, verify the homepage contains the Umami script:
 
 ```bash
-curl -I https://forgeko.com/p/js/script
-curl -i -X POST https://forgeko.com/p/event \
-  -H "Content-Type: application/json" \
-  -H "User-Agent: Forgeko deploy check" \
-  --data '{"name":"pageview","url":"https://forgeko.com/","domain":"forgeko.com"}'
+curl -s https://forgeko.com/ | grep "cloud.umami.is/script.js"
 ```
 
-Expected result: the script returns JavaScript, the event endpoint returns `202 Accepted`, and the response does not include `x-plausible-dropped: 1`.
+Expected result: the HTML includes the Umami script and the browser console does not report CSP violations for `cloud.umami.is`.
+
+## First-Party Funnel Analytics
+
+The landing page also records allowlisted product funnel events through `/api/events` into Supabase `page_events`. This is separate from Umami and powers private Founder Hub reporting.
 
 ## Pre-Deploy Checks
 
@@ -128,6 +108,6 @@ Before public launch:
 - Verify `/favicon.ico` and `/favicon-48.png` return `200`, and that the homepage includes both favicon links. Google may need a recrawl before the favicon appears in `site:forgeko.com`; request indexing in Search Console after deploy if needed.
 - Verify `curl -I https://forgeko.com/` includes `Link: </.well-known/api-catalog>; rel="api-catalog"`.
 - If Cloudflare Markdown for Agents is enabled on the zone, verify `curl -H "Accept: text/markdown" https://forgeko.com/` returns `Content-Type: text/markdown`.
-- Verify `/p/js/script` returns JavaScript and `/p/event` forwards Plausible events from the Cloudflare Worker.
+- Verify the homepage includes the Umami script and that `/api/events` accepts allowlisted landing events.
 - Verify `/privacy`, `/terms`, and `/security`.
 - Check desktop and mobile layouts.

@@ -563,20 +563,18 @@ NEXT_PUBLIC_SITE_URL=https://forgeko.com
 
 | Tool | Scopo | Costo |
 |---|---|---|
-| Plausible (self-hosted su Cloudflare Workers) | Pageview, eventi, sorgenti traffico | €0 |
-| Microsoft Clarity | Heatmap, session recordings, scroll depth | €0 |
+| Umami Cloud | Pageview, eventi aggregati, sorgenti traffico | €0 |
 | Supabase (`page_events`) | Query custom, correlazione eventi/iscrizioni | €0 |
 
 **Eventi custom tracciati**
 
 ```javascript
-plausible('CTA_Hero_Click')
-plausible('CTA_Solution_Click')
-plausible('Scroll_HowItWorks')
-plausible('Scroll_SocialProof')
-plausible('Waitlist_FormFocus')
-plausible('Waitlist_Submit')
-plausible('Waitlist_Submit')
+trackEvent('CTA_Hero_Click')
+trackEvent('CTA_Solution_Click')
+trackEvent('Scroll_HowItWorks')
+trackEvent('Scroll_SocialProof')
+trackEvent('Waitlist_FormFocus')
+trackEvent('Waitlist_Submit')
 ```
 
 **Query di monitoraggio kill metric**
@@ -623,8 +621,8 @@ FILE SEO/AI SEO
 □ manifest.json
 
 ANALYTICS
-□ Integrare Plausible (self-hosted)
-□ Integrare Microsoft Clarity
+□ Integrare Umami Cloud
+□ Verificare CSP per cloud.umami.is
 □ Implementare i 7 eventi custom
 
 PRE-LAUNCH QA
@@ -636,7 +634,7 @@ PRE-LAUNCH QA
 □ Mobile testato su iOS Safari + Android Chrome
 □ DNS propagato, SSL attivo (Full strict)
 □ Redirect www → naked domain funzionante
-□ Dashboard Plausible + Clarity raggiungibili
+□ Dashboard Umami + funnel interno raggiungibili
 
 LANCIO
 □ Deploy production su Cloudflare Pages

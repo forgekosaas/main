@@ -119,9 +119,7 @@ Only use `NEXT_PUBLIC_` for values that are safe for visitors to see, such as:
 
 - public site URL;
 - public Supabase anon key;
-- analytics domain;
-- public analytics proxy paths;
-- public Clarity project id.
+- private Founder Hub analytics token.
 
 Do not create variables like:
 

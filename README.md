@@ -11,7 +11,7 @@ The site is designed to validate demand, explain the product positioning, collec
 - Tailwind CSS
 - Supabase for waitlist and event storage
 - Resend for waitlist welcome, feedback, and admin notification emails
-- Microsoft Clarity and first-party Plausible proxy for analytics
+- Umami for public web analytics and first-party Supabase events for private funnel analytics
 - OpenNext Cloudflare for Worker deployment
 - Vitest and ESLint for verification
 
@@ -76,10 +76,7 @@ Public configuration:
 NEXT_PUBLIC_SITE_URL=https://forgeko.com
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_CLARITY_PROJECT_ID=x98rtg96a8
-NEXT_PUBLIC_PLAUSIBLE_DOMAIN=forgeko.com
-NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=/p/js/script
-NEXT_PUBLIC_PLAUSIBLE_ENDPOINT=/p/event
+FOUNDER_HUB_ANALYTICS_TOKEN=
 ```
 
 Email configuration:
@@ -90,12 +87,7 @@ RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
 FORGEKO_ADMIN_EMAIL=forgeko.saas@gmail.com
 ```
 
-Plausible proxy configuration:
-
-```bash
-PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/pa-ujaKFMibRz2V4FE8Cum9M.js
-PLAUSIBLE_ORIGIN=https://plausible.io
-```
+Umami is configured directly in the root layout with the production website id. No Umami environment variable is required. Keep `FOUNDER_HUB_ANALYTICS_TOKEN` private; it protects the internal analytics summary endpoint used by Founder Hub.
 
 ## Database
 

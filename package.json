@@ -15,7 +15,7 @@
     "preview": "npm run cf:build && opennextjs-cloudflare preview",
     "deploy": "npm run cf:build && opennextjs-cloudflare deploy --keep-vars",
     "upload": "npm run cf:build && opennextjs-cloudflare upload --keep-vars",
-    "cf:build": "opennextjs-cloudflare build && node scripts/patch-open-next-worker.mjs",
+    "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "npm run cf:build && opennextjs-cloudflare preview",
     "cf:deploy": "npm run cf:build && opennextjs-cloudflare deploy --keep-vars",
     "cf:upload": "npm run cf:build && opennextjs-cloudflare upload --keep-vars"
