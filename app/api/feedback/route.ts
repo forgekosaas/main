@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { sendFeedbackEmail } from "@/lib/email";
 import { submitFeedback } from "@/lib/feedback";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { messageForTurnstileCode } from "@/lib/turnstile-messages";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ function messageForCode(code: string) {
       return "Enter a valid email and a message of at least 20 characters.";
     case "TURNSTILE_REQUIRED":
     case "TURNSTILE_FAILED":
-      return "Complete the security check and try again.";
+      return messageForTurnstileCode(code);
     case "FEEDBACK_SENT":
       return "Thanks. Your message has been sent.";
     default:

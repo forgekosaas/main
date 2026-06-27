@@ -4,6 +4,7 @@ import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { FormEvent, useState } from "react";
 
 import { trackEvent } from "@/lib/analytics-client";
+import { messageForTurnstileCode } from "@/lib/turnstile-messages";
 import { TurnstileField } from "@/components/TurnstileField";
 
 type FormState = "idle" | "submitting" | "success" | "duplicate" | "error";
@@ -24,7 +25,7 @@ export function WaitlistForm() {
 
     if (turnstileSiteKey && !turnstileToken) {
       setState("error");
-      setMessage("Complete the security check and try again.");
+      setMessage(messageForTurnstileCode("TURNSTILE_REQUIRED"));
       return;
     }
 

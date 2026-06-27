@@ -21,29 +21,48 @@ RESEND_FROM_EMAIL=hello@forgeko.com
 RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
 FORGEKO_ADMIN_EMAIL=forgeko.saas@gmail.com
 FOUNDER_HUB_ANALYTICS_TOKEN=
+TURNSTILE_SECRET_KEY=
 ```
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` or `RESEND_API_KEY` to the client.
 Use `hello@forgeko.com` only after verifying `forgeko.com` in Resend. Keep `forgeko.saas@gmail.com` as the reply-to and admin notification inbox unless a dedicated mailbox is configured.
 Keep `FOUNDER_HUB_ANALYTICS_TOKEN` secret. It protects `/api/analytics/summary`, which Founder Hub uses for private funnel reporting.
+Keep `TURNSTILE_SECRET_KEY` secret. It must match the public `NEXT_PUBLIC_TURNSTILE_SITE_KEY` configured in `wrangler.jsonc` for the same Cloudflare Turnstile widget.
+
+## Cloudflare Turnstile
+
+The waitlist and feedback forms require Cloudflare Turnstile before server-side validation runs.
+
+Before launch, verify in Cloudflare Turnstile:
+
+- the public site key in `wrangler.jsonc` belongs to the active widget;
+- the widget allows `forgeko.com` and `www.forgeko.com`;
+- the Worker secret `TURNSTILE_SECRET_KEY` is the matching secret for that widget;
+- browser DevTools shows `https://challenges.cloudflare.com/turnstile/v0/api.js`;
+- a real form submit returns `201 CREATED`, `200 ALREADY_JOINED`, or `202 FEEDBACK_SENT`, not `TURNSTILE_REQUIRED` or `TURNSTILE_FAILED`.
 
 ## Umami Analytics
 
-The root layout loads Umami Cloud directly:
+The root layout loads Umami through a first-party proxy to reduce ad-blocking and CSP issues:
 
 ```html
-<script defer src="https://cloud.umami.is/script.js" data-website-id="87379995-b261-45d8-b9fc-e4c83cc3f4a6"></script>
+<script defer src="/p/umami/script.js" data-website-id="87379995-b261-45d8-b9fc-e4c83cc3f4a6" data-host-url="/p/umami/send"></script>
 ```
 
-No Umami environment variable or Cloudflare Worker proxy is required. The Content Security Policy must allow `https://cloud.umami.is` for script loading and event delivery.
+The proxy routes forward script and event delivery to Umami Cloud:
+
+- `GET /p/umami/script.js` -> `https://cloud.umami.is/script.js`
+- `POST /p/umami/send` -> `https://cloud.umami.is/api/send`
+
+Confirm in Umami Cloud that website id `87379995-b261-45d8-b9fc-e4c83cc3f4a6` belongs to `forgeko.com`.
 
 After deploy, verify the homepage contains the Umami script:
 
 ```bash
-curl -s https://forgeko.com/ | grep "cloud.umami.is/script.js"
+curl -s https://forgeko.com/ | grep "/p/umami/script.js"
 ```
 
-Expected result: the HTML includes the Umami script and the browser console does not report CSP violations for `cloud.umami.is`.
+Expected result: the HTML includes the first-party Umami script, browser Network shows `POST /p/umami/send`, and the Umami dashboard receives pageviews within a few minutes. `/api/events` is separate first-party funnel analytics and does not prove Umami is receiving data.
 
 ## First-Party Funnel Analytics
 
@@ -100,10 +119,14 @@ The migration creates:
 
 Before public launch:
 
+- Verify Cloudflare Turnstile widget hostnames and matching secret.
 - Submit a waitlist email with explicit consent.
 - Confirm that Resend sends the short welcome email.
 - Confirm that `FORGEKO_ADMIN_EMAIL` receives the "A NEW USER" notification for a newly created waitlist signup.
 - Submit the contact feedback form and confirm the message reaches `FORGEKO_ADMIN_EMAIL`.
+- Verify Umami receives pageviews through `/p/umami/send`; do not confuse this with `/api/events`.
+- Verify Supabase `page_events` records allowlisted landing events and Founder Hub can read the summary using `FOUNDER_HUB_ANALYTICS_TOKEN`.
+- In Founder Hub, run `Update data`, then `Check Data Flow`, and confirm waitlist, page events, and feedback counts are non-zero after live tests.
 - Verify `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt`, `/humans.txt`, and `/security.txt`.
 - Verify `/favicon.ico` and `/favicon-48.png` return `200`, and that the homepage includes both favicon links. Google may need a recrawl before the favicon appears in `site:forgeko.com`; request indexing in Search Console after deploy if needed.
 - Verify `curl -I https://forgeko.com/` includes `Link: </.well-known/api-catalog>; rel="api-catalog"`.

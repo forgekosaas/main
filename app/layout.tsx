@@ -77,8 +77,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script
           defer
-          src="https://cloud.umami.is/script.js"
+          src="/p/umami/script.js"
           data-website-id="87379995-b261-45d8-b9fc-e4c83cc3f4a6"
+          data-host-url="/p/umami/send"
         />
       </head>
       <body>

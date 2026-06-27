@@ -8,7 +8,9 @@
 
 **Scopo del documento:** specifica completa e definitiva della landing page di waitlist per Forgeko. Copre contenuti, design, architettura tecnica, SEO classico, AI SEO, pubblicazione e analytics. Pensato per essere eseguito da un developer o da un'AI di sviluppo (Cursor, Claude Code, ecc.) senza ulteriori decisioni strategiche da prendere.
 
-**Status:** Pre-sviluppo. Nessuna riga di codice ancora scritta. Questo documento è l'input per la Fase di build.
+**Status:** Implementata e live su `https://forgeko.com`. Questo documento resta la specifica storica della landing e deve essere letto insieme a `README.md` e `docs/DEPLOYMENT.md` per lo stato tecnico corrente.
+
+**Nota di revisione MVP — 28 Giugno 2026:** la landing attuale usa Next.js 16, OpenNext Cloudflare Workers, Cloudflare Turnstile sui form, Umami via proxy first-party e analytics first-party Supabase tramite `/api/events`. Le sezioni sotto che descrivono Next.js 14, Cloudflare Pages o `next-on-pages` sono state aggiornate per riflettere l'implementazione reale.
 
 **Tipo di landing:** Waitlist (raccolta email pre-lancio, prodotto non ancora disponibile)
 
@@ -205,12 +207,14 @@ Sezione 4: timeline orizzontale connessa — 4 cerchi numerati collegati da una 
 ## 3. ARCHITETTURA TECNICA
 
 **Stack**
-- Framework: **Next.js 14** (App Router)
-- Hosting: **Cloudflare Pages** (con adapter `@cloudflare/next-on-pages`)
+- Framework: **Next.js 16** (App Router)
+- Hosting: **Cloudflare Workers** tramite **OpenNext Cloudflare**
 - Database: **Supabase**
 - Styling: **Tailwind CSS**
 - Animazioni: **Framer Motion** (solo Sezione 4)
 - Email transazionale: **Resend**
+- Protezione form: **Cloudflare Turnstile**
+- Analytics: **Umami Cloud via proxy first-party** + eventi first-party Supabase
 - Dominio + DNS: **Cloudflare Registrar**
 
 **Struttura progetto**
@@ -221,12 +225,11 @@ forgeko-landing/
 │   ├── page.tsx
 │   ├── layout.tsx              # meta tag, fonts, OG, JSON-LD
 │   ├── api/
-│   │   ├── waitlist/
-│   │   │   ├── route.ts        # POST — iscrizione
-│   │   │   └── confirm/
-│   │   │       └── route.ts    # GET — doppio opt-in
-│   │   └── events/
-│   │       └── route.ts        # POST — tracking eventi custom
+│   │   ├── waitlist/route.ts   # POST — iscrizione waitlist
+│   │   ├── feedback/route.ts   # POST — feedback founder
+│   │   └── events/route.ts     # POST — tracking eventi first-party
+│   └── p/
+│       └── umami/              # proxy first-party verso Umami Cloud
 ├── components/
 │   ├── Hero.tsx
 │   ├── Problem.tsx
@@ -288,8 +291,11 @@ create policy "Service role read" on waitlist
 
 | Endpoint | Metodo | Funzione |
 |---|---|---|
-| `/api/waitlist` | POST | Valida email, salva su Supabase, invia conferma via Resend |
-| `/api/events` | POST | Salva eventi comportamentali su `page_events`, fire-and-forget |
+| `/api/waitlist` | POST | Verifica Turnstile, valida email/consenso, salva su Supabase, invia welcome e notifica admin |
+| `/api/feedback` | POST | Verifica Turnstile, valida feedback e invia notifica admin |
+| `/api/events` | POST | Salva eventi comportamentali first-party su `page_events`, fire-and-forget |
+| `/p/umami/script.js` | GET | Serve lo script Umami Cloud tramite route first-party |
+| `/p/umami/send` | POST | Inoltra pageview/eventi Umami a `https://cloud.umami.is/api/send` |
 
 **Email transazionale (Resend)**
 
@@ -502,10 +508,9 @@ Questi canali sono sia distribuzione sia segnale semantico per gli LLM con brows
 
 > ⚠️ Dominio non ancora confermato dall'utente al momento della stesura — da finalizzare prima del deploy.
 
-**Hosting — Cloudflare Pages**
+**Hosting — Cloudflare Workers con OpenNext**
 
-Scelto al posto di Vercel per: CDN globale più veloce, bandwidth illimitata gratuita, Workers senza cold start, tutto centralizzato in un unico pannello (dominio + DNS + hosting).
-Richiede adapter `@cloudflare/next-on-pages` per il supporto Next.js 14 App Router.
+La landing è deployata su Cloudflare Workers tramite OpenNext Cloudflare. Non usare `@cloudflare/next-on-pages` o Cloudflare Pages per questa app. Il deploy passa da `npm run cf:build` e `npm run deploy`, che generano `.open-next/worker.js` prima dell'upload.
 
 **Configurazione sicurezza (headers)**
 
@@ -540,12 +545,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
 NEXT_PUBLIC_SITE_URL=https://forgeko.com
+TURNSTILE_SECRET_KEY=
+FOUNDER_HUB_ANALYTICS_TOKEN=
 ```
 
 **DNS — sequenza di configurazione**
 
 1. Acquisto dominio su Cloudflare Registrar
-2. Collegamento dominio a Cloudflare Pages
+2. Collegamento dominio a Cloudflare Workers custom domain
 3. SSL/TLS su Cloudflare → **Full (strict)**
 4. Certificato SSL gestito automaticamente
 
@@ -563,8 +570,10 @@ NEXT_PUBLIC_SITE_URL=https://forgeko.com
 
 | Tool | Scopo | Costo |
 |---|---|---|
-| Umami Cloud | Pageview, eventi aggregati, sorgenti traffico | €0 |
+| Umami Cloud via `/p/umami/*` | Pageview, eventi aggregati, sorgenti traffico | €0 |
 | Supabase (`page_events`) | Query custom, correlazione eventi/iscrizioni | €0 |
+
+`/api/events` e Umami sono due flussi separati. `/api/events` alimenta Founder Hub e le query private di funnel; Umami alimenta la dashboard pubblica/aggregata di traffico. Vedere chiamate a `/api/events` non significa che Umami stia ricevendo pageview.
 
 **Eventi custom tracciati**
 
@@ -599,15 +608,16 @@ SETUP
 □ Creare progetto Supabase, eseguire schema SQL (Sezione 3)
 □ Attivare RLS policies
 □ Creare account Resend, configurare dominio mittente
-□ Creare progetto Cloudflare Pages, collegare repo
+□ Configurare Cloudflare Workers custom domain per `forgeko.com`
+□ Configurare Cloudflare Turnstile con hostnames `forgeko.com` e `www.forgeko.com`
 
 SVILUPPO
-□ Scaffolding Next.js 14 (App Router) + Tailwind + Framer Motion
+□ Scaffolding Next.js 16 (App Router) + Tailwind + Framer Motion
 □ Implementare layout.tsx con font locali, meta tag, schema JSON-LD
 □ Costruire le 7 sezioni component-by-component (copy da Sezione 1)
 □ Implementare timeline animata Sezione 4
 □ Implementare componente FAQ collassato (Sezione 5 AI SEO)
-□ Costruire API routes (waitlist, confirm, events)
+□ Costruire API routes (waitlist, feedback, events, proxy Umami)
 □ Collegare Supabase client
 □ Integrare Resend per email di conferma
 
@@ -622,11 +632,14 @@ FILE SEO/AI SEO
 
 ANALYTICS
 □ Integrare Umami Cloud
-□ Verificare CSP per cloud.umami.is
+□ Verificare proxy `/p/umami/script.js` e `/p/umami/send`
 □ Implementare i 7 eventi custom
 
 PRE-LAUNCH QA
 □ Form waitlist testato end-to-end (submit → welcome email → admin notification)
+□ Form feedback testato end-to-end (submit → admin notification)
+□ Turnstile testato in browser: widget visibile, token generato, secret matching
+□ Umami dashboard riceve pageview da `forgeko.com`; non confondere con `/api/events`
 □ robots.txt, sitemap.xml, llms.txt accessibili pubblicamente
 □ OG image testata su opengraph.xyz
 □ Schema JSON-LD validato su Google Rich Results Test
@@ -637,7 +650,7 @@ PRE-LAUNCH QA
 □ Dashboard Umami + funnel interno raggiungibili
 
 LANCIO
-□ Deploy production su Cloudflare Pages
+□ Deploy production su Cloudflare Workers con OpenNext
 □ Post IndieHackers pubblicato
 □ Show HN pubblicato
 □ Thread Twitter/X pubblicato

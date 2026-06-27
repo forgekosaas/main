@@ -18,6 +18,10 @@ approvato_da: DA COMPILARE PRIMA DELL'APPROVAZIONE FINALE
 
 ---
 
+> **Nota operativa landing — 28 Giugno 2026**
+>
+> Questo Master Spec resta la visione tecnica e business del prodotto completo. La landing pre-release attualmente live è documentata in `docs/specs/FORGEKO_LANDING_SPEC.md` e usa Next.js 16, OpenNext Cloudflare Workers, Cloudflare Turnstile, Resend, Supabase, Umami via proxy first-party e analytics first-party `/api/events`. I riferimenti storici a Vercel, Next.js 14 o Cloudflare Pages nel Master Spec descrivono direzioni/prodotto o assunzioni precedenti, non lo stato operativo della landing live.
+
 ## INTRODUZIONE E SCOPO DEL DOCUMENTO
 
 Questo documento rappresenta la **single source of truth** per lo sviluppo, il posizionamento e l'operatività di Forgeko. Non è un pitch deck, non è un documento di marketing, non è una roadmap temporale. È una **specifica tecnica e strategica vincolante** che definisce:
@@ -1636,9 +1640,9 @@ Le assunzioni economiche, normative e di mercato non sono verità permanenti. Og
 
 ### 6.5 Pre-Release Landing, Waitlist e MVP
 
-La landing page pre-release avrà un documento operativo separato e dedicato. Questo Master Spec non contiene il copy definitivo, la direzione grafica completa, i prompt visuali, le scelte di stack specifiche, la SEO dettagliata o la procedura di deploy della landing. Qui restano solo obiettivi, vincoli, metriche e interfacce che il documento landing dovrà rispettare.
+La landing page pre-release ha un documento operativo separato e dedicato. Questo Master Spec non contiene il copy definitivo, la direzione grafica completa, i prompt visuali, le scelte di stack specifiche, la SEO dettagliata o la procedura di deploy della landing. Qui restano solo obiettivi, vincoli, metriche e interfacce che il documento landing deve rispettare.
 
-**Documento landing separato da creare:** `FORGEKO_PRE_RELEASE_LANDING_SPEC.md`.
+**Documento landing operativo:** `docs/specs/FORGEKO_LANDING_SPEC.md`.
 
 **Contenuto atteso del documento landing separato:**
 
@@ -1664,7 +1668,7 @@ La landing page pre-release avrà un documento operativo separato e dedicato. Qu
 **MVP scope guardrail:**
 L'MVP non deve provare a implementare l'intera visione. Deve validare: Fast Lane, generazione landing Step 3, Project Memory minima, crediti AI, waitlist/beta onboarding, una integrazione pagamento o simulazione controllata, e Legal Kit in modalità template assistito.
 
-**Promemoria operativo:** prima di pubblicare la landing, creare e completare `FORGEKO_PRE_RELEASE_LANDING_SPEC.md` con i contenuti forniti dal founder.
+**Promemoria operativo:** prima di dichiarare la landing MVP-ready, verificare `docs/specs/FORGEKO_LANDING_SPEC.md`, `docs/DEPLOYMENT.md`, Turnstile, Resend, Umami, Supabase `page_events` e Founder Hub con un test live end-to-end.
 
 ---
 
@@ -2197,7 +2201,7 @@ Questi criteri definiscono quando una macro-area può essere considerata impleme
 | **Legal risk management** | Ogni claim legal/compliance pubblicato rispetta la postura "template assistiti" e passa review rispetto al Legal Risk Register. |
 | **Threat model** | Le minacce prioritarie hanno controlli implementati o issue bloccanti prima del deploy pubblico. |
 | **Assumptions management** | Prezzi AI, costi vendor, conversioni, ICP e legal posture hanno owner, fonte e trigger di revisione aggiornati. |
-| **Pre-release landing/waitlist** | La landing non va live finché `FORGEKO_PRE_RELEASE_LANDING_SPEC.md` non è completo, approvato e coerente con ICP, legal posture, analytics e MVP guardrail di questo Master Spec. |
+| **Pre-release landing/waitlist** | La landing non va live finché `docs/specs/FORGEKO_LANDING_SPEC.md` non è completo, approvato e coerente con ICP, legal posture, analytics e MVP guardrail di questo Master Spec. |
 | **Business development** | Ogni partnership beta è tracciata con lead source, costo tempo founder e conversione verso waitlist qualificata. |
 | **Customer success** | Ogni beta user ha stato activation, health score minimo, feedback taggato e follow-up definito. |
 | **Product management** | Ogni feature in roadmap ha metrica collegata, owner, criterio di accettazione e risk penalty quando applicabile. |
@@ -2333,7 +2337,7 @@ changelog:
     - Aggiunte sezioni Business Development, Customer Success e Product Management
   v1.4:
     - Chiarito che la landing pre-release avrà un documento operativo separato
-    - Sostituiti i campi landing da completare nel Master Spec con vincoli, fasi e interfacce verso FORGEKO_PRE_RELEASE_LANDING_SPEC.md
+    - Sostituiti i campi landing da completare nel Master Spec con vincoli, fasi e interfacce verso il documento landing operativo
     - Aggiornato criterio di accettazione landing/waitlist
 decisioni_vigenti:
   - ICP biforcato Fase1/Fase2
@@ -2345,7 +2349,7 @@ decisioni_vigenti:
   - Step 3 generazione per componente
   - Legal Kit in postura template assistiti
   - Operating model solo founder verso mini-team
-  - Pre-release landing governata da documento separato FORGEKO_PRE_RELEASE_LANDING_SPEC.md
+  - Pre-release landing governata da documento separato `docs/specs/FORGEKO_LANDING_SPEC.md`
 prossima_revisione: 16 Settembre 2026 (o dopo pivot validato)
 approvato_da: DA COMPILARE PRIMA DELL'APPROVAZIONE FINALE
 data_approvazione: 16 Giugno 2026

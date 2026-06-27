@@ -66,6 +66,8 @@ Required server-side secrets:
 ```bash
 SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
+TURNSTILE_SECRET_KEY=
+FOUNDER_HUB_ANALYTICS_TOKEN=
 ```
 
 These values must never be exposed through `NEXT_PUBLIC_*` variables or committed to Git.
@@ -76,7 +78,7 @@ Public configuration:
 NEXT_PUBLIC_SITE_URL=https://forgeko.com
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-FOUNDER_HUB_ANALYTICS_TOKEN=
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 ```
 
 Email configuration:
@@ -87,7 +89,7 @@ RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
 FORGEKO_ADMIN_EMAIL=forgeko.saas@gmail.com
 ```
 
-Umami is configured directly in the root layout with the production website id. No Umami environment variable is required. Keep `FOUNDER_HUB_ANALYTICS_TOKEN` private; it protects the internal analytics summary endpoint used by Founder Hub.
+Umami is configured in the root layout with the production website id and served through the first-party proxy routes `/p/umami/script.js` and `/p/umami/send`. No Umami environment variable is required. Keep `FOUNDER_HUB_ANALYTICS_TOKEN` private; it protects the internal analytics summary endpoint used by Founder Hub.
 
 ## Database
 
@@ -151,8 +153,8 @@ Key API routes:
 - `POST /api/waitlist`
 - `POST /api/feedback`
 - `POST /api/events`
-- `GET /p/js/script`
-- `POST /p/event`
+- `GET /p/umami/script.js`
+- `POST /p/umami/send`
 
 Public discovery files:
 

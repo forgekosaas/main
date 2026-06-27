@@ -78,4 +78,39 @@ describe("Turnstile verification", () => {
       code: "TURNSTILE_FAILED"
     });
   });
+
+  it("logs non-sensitive diagnostics for unsuccessful Siteverify responses", async () => {
+    const diagnostics: unknown[] = [];
+    const fetchImpl = vi.fn(async () =>
+      Response.json(
+        {
+          success: false,
+          "error-codes": ["invalid-input-secret"]
+        },
+        { status: 200 }
+      )
+    );
+
+    const result = await verifyTurnstileToken({
+      token: "bad-token",
+      secretKey: "turnstile-secret",
+      fetchImpl,
+      logDiagnostic: (diagnostic) => diagnostics.push(diagnostic)
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      code: "TURNSTILE_FAILED"
+    });
+    expect(diagnostics).toEqual([
+      {
+        status: 200,
+        success: false,
+        errorCodes: ["invalid-input-secret"],
+        hasToken: true
+      }
+    ]);
+    expect(JSON.stringify(diagnostics)).not.toContain("bad-token");
+    expect(JSON.stringify(diagnostics)).not.toContain("turnstile-secret");
+  });
 });

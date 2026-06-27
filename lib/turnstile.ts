@@ -4,16 +4,25 @@ export type TurnstileResult =
   | { ok: true; skipped: boolean }
   | { ok: false; code: "TURNSTILE_REQUIRED" | "TURNSTILE_FAILED" };
 
+export type TurnstileDiagnostic = {
+  status: number;
+  success: boolean;
+  errorCodes: string[];
+  hasToken: boolean;
+};
+
 export async function verifyTurnstileToken({
   token,
   secretKey,
   remoteIp,
-  fetchImpl = fetch
+  fetchImpl = fetch,
+  logDiagnostic = defaultTurnstileDiagnosticLogger
 }: {
   token?: string;
   secretKey?: string;
   remoteIp?: string | null;
   fetchImpl?: typeof fetch;
+  logDiagnostic?: (diagnostic: TurnstileDiagnostic) => void;
 }): Promise<TurnstileResult> {
   if (!secretKey) {
     return { ok: true, skipped: true };
@@ -35,11 +44,21 @@ export async function verifyTurnstileToken({
     method: "POST",
     body
   });
-  const result = (await response.json().catch(() => null)) as { success?: boolean } | null;
+  const result = (await response.json().catch(() => null)) as { success?: boolean; "error-codes"?: string[] } | null;
 
   if (!response.ok || result?.success !== true) {
+    logDiagnostic({
+      status: response.status,
+      success: result?.success === true,
+      errorCodes: Array.isArray(result?.["error-codes"]) ? result["error-codes"] : [],
+      hasToken: Boolean(token?.trim())
+    });
     return { ok: false, code: "TURNSTILE_FAILED" };
   }
 
   return { ok: true, skipped: false };
+}
+
+function defaultTurnstileDiagnosticLogger(diagnostic: TurnstileDiagnostic) {
+  console.warn("Turnstile verification failed", diagnostic);
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { sendNewWaitlistUserEmail, sendWaitlistWelcomeEmail } from "@/lib/email";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { messageForTurnstileCode } from "@/lib/turnstile-messages";
 import { recordWaitlistEmailSent, upsertWaitlist } from "@/lib/waitlist-repository";
 import { submitWaitlistSignup } from "@/lib/waitlist";
 
@@ -58,7 +59,7 @@ function messageForCode(code: string) {
       return "Confirm that you agree to receive Forgeko waitlist updates.";
     case "TURNSTILE_REQUIRED":
     case "TURNSTILE_FAILED":
-      return "Complete the security check and try again.";
+      return messageForTurnstileCode(code);
     case "ALREADY_JOINED":
       return "You're already on the Forgeko waitlist.";
     case "CREATED":

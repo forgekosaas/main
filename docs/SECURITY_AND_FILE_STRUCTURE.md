@@ -108,6 +108,8 @@ Current sensitive variables:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `RESEND_API_KEY`
+- `TURNSTILE_SECRET_KEY`
+- `FOUNDER_HUB_ANALYTICS_TOKEN`
 
 These are server-only. They must never be exposed in client components or `NEXT_PUBLIC_*` variables.
 
@@ -119,7 +121,7 @@ Only use `NEXT_PUBLIC_` for values that are safe for visitors to see, such as:
 
 - public site URL;
 - public Supabase anon key;
-- private Founder Hub analytics token.
+- public Cloudflare Turnstile site key.
 
 Do not create variables like:
 
@@ -136,7 +138,8 @@ Current examples:
 
 - `app/api/waitlist/route.ts`
 - `app/api/feedback/route.ts`
-- `app/p/event/route.ts`
+- `app/api/events/route.ts`
+- `app/p/umami/send/route.ts`
 
 The browser sends a request to the API route. The API route uses server-side environment variables. The secret never reaches the browser.
 

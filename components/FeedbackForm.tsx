@@ -4,6 +4,7 @@ import { Check, Loader2, Send } from "lucide-react";
 import { FormEvent, useState } from "react";
 
 import { trackEvent } from "@/lib/analytics-client";
+import { messageForTurnstileCode } from "@/lib/turnstile-messages";
 import { TurnstileField } from "@/components/TurnstileField";
 
 type FormState = "idle" | "submitting" | "success" | "error";
@@ -24,7 +25,7 @@ export function FeedbackForm() {
 
     if (turnstileSiteKey && !turnstileToken) {
       setState("error");
-      setStatusMessage("Complete the security check and try again.");
+      setStatusMessage(messageForTurnstileCode("TURNSTILE_REQUIRED"));
       return;
     }
 
