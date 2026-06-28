@@ -11,7 +11,7 @@ The site is designed to validate demand, explain the product positioning, collec
 - Tailwind CSS
 - Supabase for waitlist and event storage
 - Resend for waitlist welcome, feedback, and admin notification emails
-- Umami for public web analytics and first-party Supabase events for private funnel analytics
+- First-party Supabase events for private funnel analytics and Founder Hub reporting
 - OpenNext Cloudflare for Worker deployment
 - Vitest and ESLint for verification
 
@@ -89,7 +89,7 @@ RESEND_REPLY_TO_EMAIL=forgeko.saas@gmail.com
 FORGEKO_ADMIN_EMAIL=forgeko.saas@gmail.com
 ```
 
-Umami is configured in the root layout with the production website id and served through the first-party proxy routes `/p/umami/script.js` and `/p/umami/send`. No Umami environment variable is required. Keep `FOUNDER_HUB_ANALYTICS_TOKEN` private; it protects the internal analytics summary endpoint used by Founder Hub.
+Public page and funnel events are recorded through the first-party `/api/events` endpoint into Supabase. Keep `FOUNDER_HUB_ANALYTICS_TOKEN` private; it protects the internal analytics summary endpoint used by Founder Hub.
 
 ## Database
 
@@ -153,8 +153,6 @@ Key API routes:
 - `POST /api/waitlist`
 - `POST /api/feedback`
 - `POST /api/events`
-- `GET /p/umami/script.js`
-- `POST /p/umami/send`
 
 Public discovery files:
 

@@ -74,14 +74,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <script
-          defer
-          src="/p/umami/script.js"
-          data-website-id="87379995-b261-45d8-b9fc-e4c83cc3f4a6"
-          data-host-url="/p/umami/send"
-        />
-      </head>
+      <head />
       <body>
         <PageAmbientField />
         {children}

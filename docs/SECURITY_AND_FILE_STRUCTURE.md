@@ -139,7 +139,6 @@ Current examples:
 - `app/api/waitlist/route.ts`
 - `app/api/feedback/route.ts`
 - `app/api/events/route.ts`
-- `app/p/umami/send/route.ts`
 
 The browser sends a request to the API route. The API route uses server-side environment variables. The secret never reaches the browser.
 

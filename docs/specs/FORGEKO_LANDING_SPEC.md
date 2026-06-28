@@ -10,7 +10,7 @@
 
 **Status:** Implementata e live su `https://forgeko.com`. Questo documento resta la specifica storica della landing e deve essere letto insieme a `README.md` e `docs/DEPLOYMENT.md` per lo stato tecnico corrente.
 
-**Nota di revisione MVP — 28 Giugno 2026:** la landing attuale usa Next.js 16, OpenNext Cloudflare Workers, Cloudflare Turnstile sui form, Umami via proxy first-party e analytics first-party Supabase tramite `/api/events`. Le sezioni sotto che descrivono Next.js 14, Cloudflare Pages o `next-on-pages` sono state aggiornate per riflettere l'implementazione reale.
+**Nota di revisione MVP — 28 Giugno 2026:** la landing attuale usa Next.js 16, OpenNext Cloudflare Workers, Cloudflare Turnstile sui form e analytics first-party Supabase tramite `/api/events`. Le sezioni sotto che descrivono Next.js 14, Cloudflare Pages o `next-on-pages` sono state aggiornate per riflettere l'implementazione reale.
 
 **Tipo di landing:** Waitlist (raccolta email pre-lancio, prodotto non ancora disponibile)
 
@@ -214,7 +214,7 @@ Sezione 4: timeline orizzontale connessa — 4 cerchi numerati collegati da una 
 - Animazioni: **Framer Motion** (solo Sezione 4)
 - Email transazionale: **Resend**
 - Protezione form: **Cloudflare Turnstile**
-- Analytics: **Umami Cloud via proxy first-party** + eventi first-party Supabase
+- Analytics: eventi first-party Supabase
 - Dominio + DNS: **Cloudflare Registrar**
 
 **Struttura progetto**
@@ -228,8 +228,6 @@ forgeko-landing/
 │   │   ├── waitlist/route.ts   # POST — iscrizione waitlist
 │   │   ├── feedback/route.ts   # POST — feedback founder
 │   │   └── events/route.ts     # POST — tracking eventi first-party
-│   └── p/
-│       └── umami/              # proxy first-party verso Umami Cloud
 ├── components/
 │   ├── Hero.tsx
 │   ├── Problem.tsx
@@ -294,8 +292,6 @@ create policy "Service role read" on waitlist
 | `/api/waitlist` | POST | Verifica Turnstile, valida email/consenso, salva su Supabase, invia welcome e notifica admin |
 | `/api/feedback` | POST | Verifica Turnstile, valida feedback e invia notifica admin |
 | `/api/events` | POST | Salva eventi comportamentali first-party su `page_events`, fire-and-forget |
-| `/p/umami/script.js` | GET | Serve lo script Umami Cloud tramite route first-party |
-| `/p/umami/send` | POST | Inoltra pageview/eventi Umami a `https://cloud.umami.is/api/send` |
 
 **Email transazionale (Resend)**
 
@@ -570,10 +566,9 @@ FOUNDER_HUB_ANALYTICS_TOKEN=
 
 | Tool | Scopo | Costo |
 |---|---|---|
-| Umami Cloud via `/p/umami/*` | Pageview, eventi aggregati, sorgenti traffico | €0 |
 | Supabase (`page_events`) | Query custom, correlazione eventi/iscrizioni | €0 |
 
-`/api/events` e Umami sono due flussi separati. `/api/events` alimenta Founder Hub e le query private di funnel; Umami alimenta la dashboard pubblica/aggregata di traffico. Vedere chiamate a `/api/events` non significa che Umami stia ricevendo pageview.
+`/api/events` alimenta Founder Hub e le query private di funnel. Umami non è richiesto per l'MVP.
 
 **Eventi custom tracciati**
 
@@ -617,7 +612,7 @@ SVILUPPO
 □ Costruire le 7 sezioni component-by-component (copy da Sezione 1)
 □ Implementare timeline animata Sezione 4
 □ Implementare componente FAQ collassato (Sezione 5 AI SEO)
-□ Costruire API routes (waitlist, feedback, events, proxy Umami)
+□ Costruire API routes (waitlist, feedback, events)
 □ Collegare Supabase client
 □ Integrare Resend per email di conferma
 
@@ -631,15 +626,12 @@ FILE SEO/AI SEO
 □ manifest.json
 
 ANALYTICS
-□ Integrare Umami Cloud
-□ Verificare proxy `/p/umami/script.js` e `/p/umami/send`
 □ Implementare i 7 eventi custom
 
 PRE-LAUNCH QA
 □ Form waitlist testato end-to-end (submit → welcome email → admin notification)
 □ Form feedback testato end-to-end (submit → admin notification)
 □ Turnstile testato in browser: widget visibile, token generato, secret matching
-□ Umami dashboard riceve pageview da `forgeko.com`; non confondere con `/api/events`
 □ robots.txt, sitemap.xml, llms.txt accessibili pubblicamente
 □ OG image testata su opengraph.xyz
 □ Schema JSON-LD validato su Google Rich Results Test
@@ -647,7 +639,7 @@ PRE-LAUNCH QA
 □ Mobile testato su iOS Safari + Android Chrome
 □ DNS propagato, SSL attivo (Full strict)
 □ Redirect www → naked domain funzionante
-□ Dashboard Umami + funnel interno raggiungibili
+□ Founder Hub e funnel interno raggiungibili
 
 LANCIO
 □ Deploy production su Cloudflare Workers con OpenNext

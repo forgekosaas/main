@@ -5,7 +5,7 @@
 - Cloudflare account with `forgeko.com` configured.
 - Supabase project with all SQL files in `supabase/migrations/` applied.
 - Resend account with the sending domain verified.
-- Umami Cloud tracking for public website analytics.
+- First-party Supabase event tracking for funnel analytics.
 
 ## Environment Variables
 
@@ -41,32 +41,9 @@ Before launch, verify in Cloudflare Turnstile:
 - browser DevTools shows `https://challenges.cloudflare.com/turnstile/v0/api.js`;
 - a real form submit returns `201 CREATED`, `200 ALREADY_JOINED`, or `202 FEEDBACK_SENT`, not `TURNSTILE_REQUIRED` or `TURNSTILE_FAILED`.
 
-## Umami Analytics
-
-The root layout loads Umami through a first-party proxy to reduce ad-blocking and CSP issues:
-
-```html
-<script defer src="/p/umami/script.js" data-website-id="87379995-b261-45d8-b9fc-e4c83cc3f4a6" data-host-url="/p/umami/send"></script>
-```
-
-The proxy routes forward script and event delivery to Umami Cloud:
-
-- `GET /p/umami/script.js` -> `https://cloud.umami.is/script.js`
-- `POST /p/umami/send` -> `https://cloud.umami.is/api/send`
-
-Confirm in Umami Cloud that website id `87379995-b261-45d8-b9fc-e4c83cc3f4a6` belongs to `forgeko.com`.
-
-After deploy, verify the homepage contains the Umami script:
-
-```bash
-curl -s https://forgeko.com/ | grep "/p/umami/script.js"
-```
-
-Expected result: the HTML includes the first-party Umami script, browser Network shows `POST /p/umami/send`, and the Umami dashboard receives pageviews within a few minutes. `/api/events` is separate first-party funnel analytics and does not prove Umami is receiving data.
-
 ## First-Party Funnel Analytics
 
-The landing page also records allowlisted product funnel events through `/api/events` into Supabase `page_events`. This is separate from Umami and powers private Founder Hub reporting.
+The landing page records allowlisted product funnel events through `/api/events` into Supabase `page_events`. This powers private Founder Hub reporting and is the only analytics path required for the MVP.
 
 ## Pre-Deploy Checks
 
@@ -124,13 +101,12 @@ Before public launch:
 - Confirm that Resend sends the short welcome email.
 - Confirm that `FORGEKO_ADMIN_EMAIL` receives the "A NEW USER" notification for a newly created waitlist signup.
 - Submit the contact feedback form and confirm the message reaches `FORGEKO_ADMIN_EMAIL`.
-- Verify Umami receives pageviews through `/p/umami/send`; do not confuse this with `/api/events`.
 - Verify Supabase `page_events` records allowlisted landing events and Founder Hub can read the summary using `FOUNDER_HUB_ANALYTICS_TOKEN`.
 - In Founder Hub, run `Update data`, then `Check Data Flow`, and confirm waitlist, page events, and feedback counts are non-zero after live tests.
 - Verify `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt`, `/humans.txt`, and `/security.txt`.
 - Verify `/favicon.ico` and `/favicon-48.png` return `200`, and that the homepage includes both favicon links. Google may need a recrawl before the favicon appears in `site:forgeko.com`; request indexing in Search Console after deploy if needed.
 - Verify `curl -I https://forgeko.com/` includes `Link: </.well-known/api-catalog>; rel="api-catalog"`.
 - If Cloudflare Markdown for Agents is enabled on the zone, verify `curl -H "Accept: text/markdown" https://forgeko.com/` returns `Content-Type: text/markdown`.
-- Verify the homepage includes the Umami script and that `/api/events` accepts allowlisted landing events.
+- Verify `/api/events` accepts allowlisted landing events.
 - Verify `/privacy`, `/terms`, and `/security`.
 - Check desktop and mobile layouts.
