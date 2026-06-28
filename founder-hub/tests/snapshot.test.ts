@@ -1,16 +1,20 @@
 import { describe, expect, it } from "vitest";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 import { buildDailyBrief } from "@/jobs/daily-brief";
 import { emptyFounderHubSnapshot, getFounderHubSnapshot } from "@/lib/snapshot";
 
 describe("Founder Hub source-backed snapshot", () => {
   it("does not show demo data when no real data source is available", async () => {
-    const snapshot = await getFounderHubSnapshot(null);
+    const snapshot = await getFounderHubSnapshot(null, join(tmpdir(), "missing-founder-hub-snapshot-test.json"));
     const brief = buildDailyBrief(snapshot);
     const serialized = JSON.stringify({ snapshot, brief });
 
     expect(snapshot.analytics.visitors).toBe(0);
     expect(snapshot.analytics.conversions).toBe(0);
+    expect(snapshot.newsItems).toEqual([]);
+    expect(snapshot.postDrafts).toEqual([]);
     expect(snapshot.feedback).toEqual([]);
     expect(snapshot.communityItems).toEqual([]);
     expect(snapshot.insights).toEqual([]);
@@ -21,13 +25,17 @@ describe("Founder Hub source-backed snapshot", () => {
 
   it("keeps an explicit empty analytics state for unconfigured Forgeko analytics", () => {
     expect(emptyFounderHubSnapshot.analytics).toEqual({
+      activeUsers: 0,
       visitors: 0,
       uniqueVisitors: 0,
       conversions: 0,
       conversionRate: 0,
+      waitlistClicks: 0,
+      waitlistSubmits: 0,
       waitlistSignups: 0,
       waitlistConfirmed: 0,
-      waitlistConversionRate: 0,
+      waitlistConversionRate: null,
+      clickToSignupRate: null,
       waitlistSources: [],
       pageEvents: [],
       topReferrers: [],

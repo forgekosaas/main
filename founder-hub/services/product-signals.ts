@@ -15,17 +15,23 @@ interface PageEventRow {
 }
 
 export interface ProductSignalSnapshot {
+  waitlistClicks: number;
+  waitlistSubmits: number;
   waitlistSignups: number;
   waitlistConfirmed: number;
-  waitlistConversionRate: number;
+  waitlistConversionRate: number | null;
+  clickToSignupRate: number | null;
   waitlistSources: Array<{ source: string; signups: number }>;
   pageEvents: Array<{ eventType: string; count: number }>;
 }
 
 export const emptyProductSignalSnapshot: ProductSignalSnapshot = {
+  waitlistClicks: 0,
+  waitlistSubmits: 0,
   waitlistSignups: 0,
   waitlistConfirmed: 0,
   waitlistConversionRate: 0,
+  clickToSignupRate: 0,
   waitlistSources: [],
   pageEvents: []
 };
@@ -50,11 +56,18 @@ export async function fetchProductSignalSnapshot(
   const waitlistSignups = waitlistRows.length;
   const waitlistConfirmed = waitlistRows.filter((row) => row.confirmed).length;
   const denominator = analytics?.visitors || uniqueSessionsFromEvents(eventRows);
+  const waitlistClicks = eventRows.filter((row) => row.event_type === "CTA_Hero_Click" || row.event_type === "CTA_Solution_Click").length;
+  const waitlistSubmits = eventRows.filter((row) => row.event_type === "Waitlist_Submit").length;
+  const hasReliableVisitDenominator = denominator > 0 && waitlistSignups <= denominator;
+  const hasReliableClickDenominator = waitlistClicks > 0 && waitlistSignups <= waitlistClicks;
 
   return {
+    waitlistClicks,
+    waitlistSubmits,
     waitlistSignups,
     waitlistConfirmed,
-    waitlistConversionRate: denominator > 0 ? roundPercent(waitlistSignups / denominator) : 0,
+    waitlistConversionRate: hasReliableVisitDenominator ? roundPercent(waitlistSignups / denominator) : null,
+    clickToSignupRate: hasReliableClickDenominator ? roundPercent(waitlistSignups / waitlistClicks) : null,
     waitlistSources: countRows(waitlistRows.map((row) => row.source || "unknown"), "source", "signups"),
     pageEvents: countRows(eventRows.map((row) => row.event_type || "unknown"), "eventType", "count")
   };
@@ -64,14 +77,29 @@ export function mergeProductSignals(
   analytics: AnalyticsSnapshot,
   productSignals: ProductSignalSnapshot
 ): AnalyticsSnapshot {
+  const hasProductSignals =
+    productSignals.waitlistClicks > 0 ||
+    productSignals.waitlistSubmits > 0 ||
+    productSignals.waitlistSignups > 0 ||
+    productSignals.waitlistConfirmed > 0 ||
+    productSignals.waitlistSources.length > 0 ||
+    productSignals.pageEvents.length > 0;
+
+  if (!hasProductSignals) {
+    return analytics;
+  }
+
   return {
     ...analytics,
+    waitlistClicks: productSignals.waitlistClicks || analytics.waitlistClicks,
+    waitlistSubmits: productSignals.waitlistSubmits || analytics.waitlistSubmits,
     waitlistSignups: productSignals.waitlistSignups,
     waitlistConfirmed: productSignals.waitlistConfirmed,
     waitlistConversionRate: productSignals.waitlistConversionRate,
+    clickToSignupRate: productSignals.clickToSignupRate || analytics.clickToSignupRate,
     waitlistSources: productSignals.waitlistSources,
     pageEvents: productSignals.pageEvents,
-    conversionRate: productSignals.waitlistConversionRate
+    conversionRate: productSignals.waitlistConversionRate ?? analytics.conversionRate
   };
 }
 

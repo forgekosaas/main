@@ -24,11 +24,15 @@ if not exist node_modules (
   )
 )
 
-echo Opening http://localhost:3030 ...
-start "" "http://localhost:3030"
+set "PORT=3030"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Test-NetConnection 127.0.0.1 -Port 3030 -InformationLevel Quiet) { exit 1 }"
+if errorlevel 1 set "PORT=3031"
+
+echo Opening http://127.0.0.1:%PORT% ...
+start "" "http://127.0.0.1:%PORT%"
 echo.
 echo Keep this window open while using Founder Hub.
 echo Press Ctrl+C to stop the server.
 echo.
-call npm run dev
+call npx next dev -p %PORT%
 pause

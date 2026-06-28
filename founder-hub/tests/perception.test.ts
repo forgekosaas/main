@@ -4,6 +4,8 @@ import { buildMarketingToolkit, buildPerceptionSignals } from "@/lib/perception"
 import type { FounderHubSnapshot } from "@/types/founder-hub";
 
 const snapshot: FounderHubSnapshot = {
+  newsItems: [],
+  postDrafts: [],
   communityItems: [
     {
       id: "c1",
@@ -37,13 +39,17 @@ const snapshot: FounderHubSnapshot = {
     }
   ],
   analytics: {
+    activeUsers: 4,
     visitors: 4,
     uniqueVisitors: 4,
     conversions: 36,
     conversionRate: 0,
+    waitlistClicks: 2,
+    waitlistSubmits: 2,
     waitlistSignups: 2,
     waitlistConfirmed: 2,
     waitlistConversionRate: 50,
+    clickToSignupRate: 100,
     waitlistSources: [{ source: "cta_final", signups: 2 }],
     pageEvents: [{ eventType: "Waitlist_Submit", count: 2 }],
     topReferrers: [{ source: "Google", visitors: 2 }],

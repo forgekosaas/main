@@ -1,4 +1,5 @@
 export const allowedEventTypes = [
+  "Page_View",
   "CTA_Hero_Click",
   "CTA_Solution_Click",
   "Scroll_HowItWorks",

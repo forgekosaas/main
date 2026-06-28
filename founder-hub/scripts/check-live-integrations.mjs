@@ -1,56 +1,48 @@
 import { existsSync, readFileSync } from "node:fs";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const root = process.cwd();
 const envPath = join(root, ".env.local");
 const env = { ...process.env, ...readEnvFile(envPath) };
 
-const founderHubTables = [
-  "founder_hub_sources",
-  "founder_hub_community_items",
-  "founder_hub_emails",
-  "founder_hub_analytics_snapshots",
-  "founder_hub_insights",
-  "founder_hub_memory",
-  "founder_hub_settings"
-];
-
 const checks = [
   {
     id: "gemini",
-    label: "Gemini gemini-3.5-flash",
-    required: ["GEMINI_API"],
-    run: checkGemini
+    label: "Local draft engine",
+    required: [],
+    run: checkLocalDraftEngine
   },
   {
     id: "supabase",
-    label: "Supabase Founder Hub schema",
-    required: ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
-    run: checkSupabase
+    label: "Local Founder Hub cache",
+    required: [],
+    run: checkLocalCache
   },
   {
     id: "analytics",
     label: "Forgeko analytics summary",
     required: ["FOUNDER_HUB_ANALYTICS_TOKEN"],
+    optional: true,
     run: checkForgekoAnalytics
   },
   {
     id: "reddit",
-    label: "Reddit read-only listing",
-    required: ["REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET"],
+    label: "Reddit public listing",
+    required: [],
     run: checkReddit
-  },
-  {
-    id: "gmail",
-    label: "Gmail read-only messages",
-    required: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REFRESH_TOKEN"],
-    run: checkGmail
   },
   {
     id: "hackerNews",
     label: "Hacker News public search",
     required: [],
     run: checkHackerNews
+  },
+  {
+    id: "rssNews",
+    label: "RSS news feeds",
+    required: [],
+    run: checkRssNews
   }
 ];
 
@@ -62,13 +54,13 @@ main().catch((error) => {
 async function main() {
   console.log("Founder Hub live integration check");
   console.log(`Env file: ${existsSync(envPath) ? ".env.local found" : ".env.local missing"}`);
-  console.log("No secret values are printed. External services are read-only except the AI analysis call.\n");
+  console.log("No secret values are printed. Public services are read-only and Founder Hub cache is local.\n");
 
   const results = [];
   for (const check of checks) {
     const missing = check.required.filter((name) => !hasValue(env[name]));
     if (missing.length > 0) {
-      results.push({ id: check.id, ok: false, skipped: true, label: check.label, detail: `Missing ${missing.join(", ")}` });
+      results.push({ id: check.id, ok: check.optional === true, skipped: true, label: check.label, detail: `Missing ${missing.join(", ")}` });
       continue;
     }
 
@@ -86,7 +78,7 @@ async function main() {
   }
 
   const failed = results.filter((result) => !result.ok && !result.skipped);
-  const skipped = results.filter((result) => result.skipped);
+  const skipped = results.filter((result) => result.skipped && !result.ok);
 
   if (failed.length > 0) {
     process.exitCode = 1;
@@ -99,52 +91,19 @@ async function main() {
   }
 }
 
-async function checkGemini() {
-  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
-    method: "POST",
-    headers: {
-      "x-goog-api-key": env.GEMINI_API,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "gemini-3.5-flash",
-      system_instruction: "Return JSON only.",
-      input: "{\"ok\":true,\"service\":\"gemini\"}",
-      generation_config: {
-        thinking_level: "low",
-        temperature: 0.2
-      },
-      response_format: {
-        type: "text",
-        mime_type: "application/json",
-        schema: { type: "object" }
-      }
-    })
-  });
-
-  await assertOk(response, "Gemini Interactions API");
-  return "Interactions API accepted a minimal JSON analysis request.";
+async function checkLocalDraftEngine() {
+  return "Deterministic local draft engine does not require a network credential.";
 }
 
-async function checkSupabase() {
-  for (const table of founderHubTables) {
-    const url = new URL(`/rest/v1/${table}`, env.SUPABASE_URL);
-    url.searchParams.set("select", "id");
-    url.searchParams.set("limit", "1");
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-        Accept: "application/json"
-      }
-    });
-
-    await assertOk(response, `Supabase table ${table}`);
-  }
-
-  return `${founderHubTables.length} Founder Hub tables are readable.`;
+async function checkLocalCache() {
+  const localDir = join(root, ".local");
+  const filePath = join(localDir, "live-check.json");
+  await mkdir(localDir, { recursive: true });
+  await writeFile(filePath, JSON.stringify({ ok: true }), "utf8");
+  const payload = JSON.parse(await readFile(filePath, "utf8"));
+  await rm(filePath, { force: true });
+  if (payload.ok !== true) throw new Error("Local cache read/write did not round-trip");
+  return "Local .local cache is writable and readable.";
 }
 
 async function checkForgekoAnalytics() {
@@ -165,65 +124,15 @@ async function checkForgekoAnalytics() {
 }
 
 async function checkReddit() {
-  const tokenResponse = await fetch("https://www.reddit.com/api/v1/access_token", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${Buffer.from(`${env.REDDIT_CLIENT_ID}:${env.REDDIT_CLIENT_SECRET}`).toString("base64")}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-      "User-Agent": "ForgekoFounderHub/0.1 read-only smoke test"
-    },
-    body: new URLSearchParams({ grant_type: "client_credentials" })
-  });
-  await assertOk(tokenResponse, "Reddit client credentials token");
-
-  const tokenJson = await tokenResponse.json();
-  if (!tokenJson.access_token) {
-    throw new Error("Reddit token response did not include access_token");
-  }
-
-  const listingResponse = await fetch("https://oauth.reddit.com/r/SaaS/new?limit=1", {
+  const listingResponse = await fetch("https://www.reddit.com/r/microsaas/new.json?limit=1", {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${tokenJson.access_token}`,
-      "User-Agent": "ForgekoFounderHub/0.1 read-only smoke test",
+      "User-Agent": "ForgekoFounderHub/0.1 public-local smoke test",
       Accept: "application/json"
     }
   });
-  await assertOk(listingResponse, "Reddit r/SaaS listing");
-  return "OAuth works and r/SaaS listing is readable.";
-}
-
-async function checkGmail() {
-  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: env.GOOGLE_CLIENT_ID,
-      client_secret: env.GOOGLE_CLIENT_SECRET,
-      refresh_token: env.GOOGLE_REFRESH_TOKEN,
-      grant_type: "refresh_token"
-    })
-  });
-  await assertOk(tokenResponse, "Google OAuth refresh");
-
-  const tokenJson = await tokenResponse.json();
-  if (!tokenJson.access_token) {
-    throw new Error("Google token response did not include access_token");
-  }
-
-  const url = new URL("https://gmail.googleapis.com/gmail/v1/users/me/messages");
-  url.searchParams.set("q", "from:hello@info.forgeko.com newer_than:30d");
-  url.searchParams.set("maxResults", "1");
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${tokenJson.access_token}`,
-      Accept: "application/json"
-    }
-  });
-  await assertOk(response, "Gmail messages list");
-  return "Gmail messages list is readable with the configured query.";
+  await assertOk(listingResponse, "Reddit r/microsaas public listing");
+  return "Public Reddit JSON listing is readable without OAuth.";
 }
 
 async function checkHackerNews() {
@@ -238,6 +147,15 @@ async function checkHackerNews() {
   });
   await assertOk(response, "Hacker News Algolia search");
   return "Public HN search is readable.";
+}
+
+async function checkRssNews() {
+  const response = await fetch("https://techcrunch.com/category/artificial-intelligence/feed/", {
+    method: "GET",
+    headers: { Accept: "application/rss+xml, application/xml, text/xml" }
+  });
+  await assertOk(response, "TechCrunch AI RSS feed");
+  return "TechCrunch AI RSS feed is readable.";
 }
 
 async function assertOk(response, label) {

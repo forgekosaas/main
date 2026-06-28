@@ -23,6 +23,9 @@ export async function analyzeCommunityItem(
   return normalizeCommunityCopy({
     id: item.id,
     source: item.source,
+    kind: item.kind,
+    subreddit: item.subreddit,
+    score: item.score,
     title: item.title,
     author: item.author,
     url: item.url,
@@ -67,9 +70,11 @@ function heuristicCommunityAnalysis(item: RawCommunityItem): CommunityAnalysis {
   const text = `${item.title} ${item.content}`.toLowerCase();
   const validation = text.includes("validat");
   const roadmap = text.includes("roadmap") || text.includes("what to build");
-  const launch = text.includes("launch");
-  const analytics = text.includes("analytics") || text.includes("growth");
-  const score = 42 + (validation ? 24 : 0) + (roadmap ? 16 : 0) + (launch ? 12 : 0) + (analytics ? 10 : 0);
+  const launch = text.includes("launch") || text.includes("release") || text.includes("ship");
+  const analytics = text.includes("analytics") || text.includes("growth") || text.includes("mrr");
+  const marketing = text.includes("marketing") || text.includes("users") || text.includes("customers") || text.includes("sales");
+  const stuck = text.includes("stuck") || text.includes("can't") || text.includes("how do") || text.includes("struggling");
+  const score = 42 + (validation ? 24 : 0) + (roadmap ? 16 : 0) + (launch ? 12 : 0) + (analytics ? 10 : 0) + (marketing ? 12 : 0) + (stuck ? 8 : 0);
   const painPoint = validation
     ? "validation uncertainty"
     : roadmap
@@ -78,7 +83,9 @@ function heuristicCommunityAnalysis(item: RawCommunityItem): CommunityAnalysis {
         ? "launch planning"
         : analytics
           ? "growth measurement"
-          : "solo founder context switching";
+          : marketing
+            ? "marketing and distribution"
+            : "solo founder context switching";
 
   return {
     summary: item.content ? `${item.title}: ${item.content.slice(0, 180)}` : item.title,

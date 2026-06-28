@@ -21,10 +21,10 @@ describe("Founder Hub forms", () => {
     expect(html).toContain('method="post"');
   });
 
-  it("shows source sync controls instead of hiding real data loading behind routes", () => {
+  it("shows private source extraction controls instead of old dashboard copy", () => {
     const html = renderToStaticMarkup(<DataSyncPanel />);
 
-    expect(html).toContain("Update data");
+    expect(html).toContain("Extract latest data");
   });
 
   it("shows a data flow inspector for route-level debugging", () => {

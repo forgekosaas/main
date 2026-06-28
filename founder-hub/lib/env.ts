@@ -44,33 +44,30 @@ export function getFounderHubEnv(source: EnvSource = process.env): FounderHubEnv
 
 export function getPublicSettingsStatus(env: FounderHubEnv): PublicSettingsStatus {
   return {
-    gemini: serviceStatus("AI analysis", ["GEMINI_API"], [env.geminiApiKey]),
+    gemini: serviceStatus("Local draft engine", [], []),
     supabase: serviceStatus(
-      "Founder Hub database",
-      ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
-      [env.supabaseUrl, env.supabaseServiceRoleKey]
+      "Optional landing waitlist source",
+      [],
+      []
     ),
     analytics: serviceStatus(
       "Forgeko analytics",
       ["FORGEKO_SITE_URL", "FOUNDER_HUB_ANALYTICS_TOKEN"],
       [env.forgekoSiteUrl, env.forgekoAnalyticsToken]
     ),
-    gmail: serviceStatus(
-      "Gmail read-only",
-      ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REFRESH_TOKEN"],
-      [env.googleClientId, env.googleClientSecret, env.googleRefreshToken]
-    ),
     reddit: serviceStatus(
-      "Reddit read-only",
-      ["REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET"],
-      [env.redditClientId, env.redditClientSecret]
+      "Reddit public JSON",
+      [],
+      []
     ),
-    hackerNews: serviceStatus("Hacker News public search", [], [])
+    hackerNews: serviceStatus("Hacker News public search", [], []),
+    rssNews: serviceStatus("RSS news", [], [])
   };
 }
 
 export function hasGemini(env: FounderHubEnv) {
-  return Boolean(env.geminiApiKey);
+  void env;
+  return false;
 }
 
 function clean(value: string | undefined) {

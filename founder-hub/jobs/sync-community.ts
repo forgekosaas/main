@@ -1,31 +1,34 @@
-import { createGeminiAnalysisClient } from "@/ai/client";
 import { analyzeCommunityItem } from "@/ai/community-agent";
 import type { FounderHubEnv } from "@/lib/env";
 import { defaultCommunityQuery, defaultFounderHubSettings } from "@/settings/defaults";
 import { fetchRelevantRedditThreads } from "@/services/reddit";
-import { createFounderHubSupabase, saveCommunityItem } from "@/services/supabase";
 
 export async function syncRedditCommunity(env: FounderHubEnv) {
-  if (!env.redditClientId || !env.redditClientSecret) {
-    return { configured: false, items: [] };
-  }
+  void env;
 
   const rawItems = await fetchRelevantRedditThreads({
-    credentials: { clientId: env.redditClientId, clientSecret: env.redditClientSecret },
     subreddits: defaultFounderHubSettings.subreddits,
     query: defaultCommunityQuery
   });
-  const client = env.geminiApiKey ? createGeminiAnalysisClient({ apiKey: env.geminiApiKey }) : undefined;
-  const db = createFounderHubSupabase(env);
   const items = [];
 
-  for (const rawItem of rawItems.slice(0, 12)) {
-    const item = await analyzeCommunityItem(rawItem, client);
-    if (item.relevanceScore >= 65) {
-      await saveCommunityItem(db, item);
+  for (const rawItem of rawItems.filter(isUsefulRawRedditSignal).slice(0, 20)) {
+    const item = await analyzeCommunityItem(rawItem);
+    if (item.relevanceScore >= 35) {
       items.push(item);
     }
   }
 
   return { configured: true, items };
+}
+
+function isUsefulRawRedditSignal(item: { title: string; content: string }) {
+  const text = `${item.title} ${item.content}`.toLowerCase();
+  if (/\b(self[-\s]?promotion|big updates? for the community|comment your saas|drop your saas|startup ideas?\s*\?*)\b/.test(text)) {
+    return false;
+  }
+  if (/\b(my app|i built|i made|launching|working on an app)\b/.test(text) && !/\b(users?|customers?|waitlist|marketing|validate|feedback|mrr|paying|clicks?)\b/.test(text)) {
+    return false;
+  }
+  return true;
 }

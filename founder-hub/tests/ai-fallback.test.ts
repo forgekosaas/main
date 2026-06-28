@@ -16,13 +16,17 @@ const failingClient: AnalysisClient = {
 describe("AI fallback behavior", () => {
   it("keeps Forgeko analytics when Gemini analysis fails", async () => {
     const snapshot: AnalyticsSnapshot = {
+      activeUsers: 30,
       visitors: 42,
       uniqueVisitors: 30,
       conversions: 5,
       conversionRate: 11.9,
+      waitlistClicks: 5,
+      waitlistSubmits: 5,
       waitlistSignups: 5,
       waitlistConfirmed: 5,
       waitlistConversionRate: 11.9,
+      clickToSignupRate: 100,
       waitlistSources: [{ source: "hero", signups: 3 }],
       pageEvents: [{ eventType: "Waitlist_Submit", count: 5 }],
       topReferrers: [{ source: "forgeko.example", visitors: 12 }],
@@ -40,6 +44,8 @@ describe("AI fallback behavior", () => {
 
   it("generates local insights when Gemini analysis fails", async () => {
     const snapshot: FounderHubSnapshot = {
+      newsItems: [],
+      postDrafts: [],
       communityItems: [
         {
           id: "c1",
@@ -58,13 +64,17 @@ describe("AI fallback behavior", () => {
         }
       ],
       analytics: {
+        activeUsers: 0,
         visitors: 0,
         uniqueVisitors: 0,
         conversions: 0,
         conversionRate: 0,
+        waitlistClicks: 0,
+        waitlistSubmits: 0,
         waitlistSignups: 0,
         waitlistConfirmed: 0,
         waitlistConversionRate: 0,
+        clickToSignupRate: 0,
         waitlistSources: [],
         pageEvents: [],
         topReferrers: [],
@@ -85,15 +95,21 @@ describe("AI fallback behavior", () => {
 
   it("does not invent pain point insights when no community or feedback exists", async () => {
     const snapshot: FounderHubSnapshot = {
+      newsItems: [],
+      postDrafts: [],
       communityItems: [],
       analytics: {
+        activeUsers: 4,
         visitors: 4,
         uniqueVisitors: 4,
         conversions: 36,
         conversionRate: 0,
+        waitlistClicks: 0,
+        waitlistSubmits: 0,
         waitlistSignups: 0,
         waitlistConfirmed: 0,
         waitlistConversionRate: 0,
+        clickToSignupRate: 0,
         waitlistSources: [],
         pageEvents: [],
         topReferrers: [{ source: "Direct / None", visitors: 3 }],

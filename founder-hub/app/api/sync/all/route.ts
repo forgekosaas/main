@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 
-import { createGeminiAnalysisClient } from "@/ai/client";
-import { generateInsights } from "@/ai/insight-agent";
 import { syncAnalyticsSnapshot } from "@/jobs/sync-analytics";
 import { syncRedditCommunity } from "@/jobs/sync-community";
-import { syncGmailFeedback } from "@/jobs/sync-feedback";
+import { syncNewsItems } from "@/jobs/sync-news";
+import { syncPostDrafts } from "@/jobs/sync-post-drafts";
 import { publicErrorMessage } from "@/lib/api-errors";
 import { snapshotCounts } from "@/lib/data-flow";
 import { getFounderHubEnv } from "@/lib/env";
 import { flowLog, publicFlowError } from "@/lib/flow-log";
-import { getFounderHubSnapshot } from "@/lib/snapshot";
-import { createFounderHubSupabase, saveInsights } from "@/services/supabase";
+import { emptyAnalyticsSnapshot } from "@/lib/snapshot";
+import { writeLocalFounderHubSnapshot } from "@/services/local-cache";
+import type { AnalyticsSnapshot, CommunityItem, FounderHubSnapshot, NewsItem, SourceHealthItem } from "@/types/founder-hub";
 
 type SyncStatus = "ok" | "skipped" | "error";
 
@@ -29,32 +29,36 @@ export async function POST() {
 
   try {
     const env = getFounderHubEnv();
-    const db = createFounderHubSupabase(env);
     const steps: SyncStep[] = [];
+    let syncedNewsItems: NewsItem[] = [];
+    let syncedCommunityItems: CommunityItem[] = [];
+    let syncedAnalytics: AnalyticsSnapshot = emptyAnalyticsSnapshot;
+    let syncedPostDrafts: FounderHubSnapshot["postDrafts"] = [];
+    let syncedVideoIdeas: FounderHubSnapshot["videoIdeas"] = [];
 
-    const [analytics, gmail, reddit] = await Promise.all([
+    const [analytics, news, reddit] = await Promise.all([
       captureStep(
         "analytics",
-        "Analytics + raw waitlist",
+        "Forgeko analytics",
         async () => {
           const result = await syncAnalyticsSnapshot(env);
+          if (result.snapshot) syncedAnalytics = result.snapshot;
           return result.configured
             ? {
-                detail: `${result.snapshot?.visitors ?? 0} visitors, ${result.snapshot?.waitlistSignups ?? 0} raw Supabase rows`,
+                detail: `${result.snapshot?.activeUsers ?? 0} active users, ${result.snapshot?.waitlistSignups ?? 0} waitlist signups`,
                 count: result.snapshot?.visitors ?? 0
               }
-            : { status: "skipped" as const, detail: "Forgeko analytics is not configured; Gmail waitlist still works on refresh." };
+            : { status: "skipped" as const, detail: "Forgeko analytics token or site URL is not configured." };
         },
         15000
       ),
       captureStep(
-        "gmail",
-        "Gmail waitlist + feedback",
+        "news",
+        "RSS news",
         async () => {
-          const result = await syncGmailFeedback(env);
-          return result.configured
-            ? { detail: `${result.emails.length} actionable emails saved`, count: result.emails.length }
-            : { status: "skipped" as const, detail: "Gmail OAuth is not configured." };
+          const result = await syncNewsItems(env);
+          syncedNewsItems = result.items;
+          return { detail: `${result.items.length} SaaS/AI/founder news items loaded`, count: result.items.length };
         },
         15000
       ),
@@ -63,39 +67,49 @@ export async function POST() {
         "Reddit opportunities",
         async () => {
           const result = await syncRedditCommunity(env);
+          syncedCommunityItems = result.items;
           return result.configured
-            ? { detail: `${result.items.length} relevant posts saved`, count: result.items.length }
-            : { status: "skipped" as const, detail: "Reddit API credentials are not configured; use manual Reddit input." };
+            ? { detail: `${result.items.length} relevant public Reddit posts/comments loaded`, count: result.items.length }
+            : { status: "skipped" as const, detail: "Reddit public source is not available right now." };
         },
         20000
       )
     ]);
-    steps.push(analytics, gmail, reddit);
-    steps.push({
-      id: "hackerNews",
-      label: "Hacker News secondary",
-      status: "skipped",
-      detail: "Skipped in normal update to keep the hub focused and fast."
-    });
+    steps.push(analytics, news, reddit);
 
-    const insights = await captureStep(
-      "insights",
-      "Pain point insights",
+    const drafts = await captureStep(
+      "postDrafts",
+      "Post drafts",
       async () => {
-        const client = env.geminiApiKey ? createGeminiAnalysisClient({ apiKey: env.geminiApiKey }) : undefined;
-        const snapshot = await getFounderHubSnapshot(db);
-        const generated = await generateInsights(snapshot, client);
-        const persisted = await saveInsights(db, generated);
+        const result = await syncPostDrafts({
+          env,
+          newsItems: syncedNewsItems,
+          communityItems: syncedCommunityItems
+        });
+        syncedPostDrafts = result.drafts;
+        syncedVideoIdeas = result.videoIdeas;
         return {
-          detail: `${generated.length} insights generated${persisted ? "" : " locally"}`,
-          count: generated.length
+          status: result.drafts.length > 0 ? "ok" : "skipped",
+          detail: result.drafts.length > 0 ? `${result.drafts.length} private local post drafts and ${result.videoIdeas.length} video ideas generated` : "No public source signal was available for local draft generation.",
+          count: result.drafts.length + result.videoIdeas.length
         };
       },
       12000
     );
-    steps.push(insights);
+    steps.push(drafts);
 
-    const snapshot = await getFounderHubSnapshot(db);
+    const snapshot: FounderHubSnapshot = {
+      newsItems: syncedNewsItems,
+      postDrafts: syncedPostDrafts,
+      videoIdeas: syncedVideoIdeas,
+      communityItems: syncedCommunityItems,
+      analytics: syncedAnalytics,
+      sourceHealth: sourceHealthFromSteps(steps),
+      feedback: [],
+      insights: [],
+      memory: []
+    };
+    await writeLocalFounderHubSnapshot(snapshot);
     const ok = steps.every((step) => step.status !== "error");
 
     flowLog({
@@ -111,6 +125,18 @@ export async function POST() {
     flowLog({ route: "/api/sync/all", step: "error", source: "all", status: "error", detail: publicFlowError(error) });
     return NextResponse.json({ ok: false, error: publicErrorMessage(error) }, { status: 500 });
   }
+}
+
+function sourceHealthFromSteps(steps: SyncStep[]): SourceHealthItem[] {
+  const updatedAt = new Date().toISOString();
+  return steps.map((step) => ({
+    id: step.id,
+    label: step.label,
+    status: step.status,
+    detail: step.detail,
+    count: step.count,
+    updatedAt
+  }));
 }
 
 async function captureStep(

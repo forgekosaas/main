@@ -5,6 +5,8 @@ import { buildDailyBrief } from "@/jobs/daily-brief";
 describe("daily brief", () => {
   it("turns signals into a short decision-oriented brief", () => {
     const brief = buildDailyBrief({
+      newsItems: [],
+      postDrafts: [],
       communityItems: [
         {
           id: "c1",
@@ -23,13 +25,17 @@ describe("daily brief", () => {
         }
       ],
       analytics: {
+        activeUsers: 92,
         visitors: 120,
         uniqueVisitors: 92,
         conversions: 8,
         conversionRate: 6.7,
+        waitlistClicks: 8,
+        waitlistSubmits: 8,
         waitlistSignups: 8,
         waitlistConfirmed: 8,
         waitlistConversionRate: 6.7,
+        clickToSignupRate: 100,
         waitlistSources: [{ source: "hero", signups: 5 }],
         pageEvents: [{ eventType: "Waitlist_Submit", count: 8 }],
         topReferrers: [{ source: "reddit.com", visitors: 44 }],

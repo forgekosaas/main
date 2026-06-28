@@ -3,7 +3,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { FounderHubEnv } from "@/lib/env";
 import { normalizeCommunityCopy } from "@/lib/community-copy";
 import { isActionableFeedbackEmail, presentFeedbackEmail } from "@/lib/signal-cleaning";
-import type { AnalyticsSnapshot, CommunityItem, FeedbackEmail, Insight, MemoryEntry } from "@/types/founder-hub";
+import type { AnalyticsSnapshot, CommunityItem, FeedbackEmail, Insight, MemoryEntry, NewsItem, PostDraft } from "@/types/founder-hub";
 
 export function createFounderHubSupabase(env: FounderHubEnv): SupabaseClient | null {
   if (!env.supabaseUrl || !env.supabaseServiceRoleKey) {
@@ -64,6 +64,42 @@ export async function listCommunityCache(client: SupabaseClient | null, key: str
   return value.map(fromCachedCommunityItem).filter(Boolean) as CommunityItem[];
 }
 
+export async function saveNewsItems(client: SupabaseClient | null, items: NewsItem[]) {
+  if (!client || items.length === 0) return false;
+  const { error } = await client.from("founder_hub_news_items").upsert(items.map(toNewsRow), { onConflict: "id" });
+  if (error) throw error;
+  return true;
+}
+
+export async function listNewsItems(client: SupabaseClient | null): Promise<NewsItem[]> {
+  if (!client) return [];
+  const { data, error } = await client
+    .from("founder_hub_news_items")
+    .select("*")
+    .order("published_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return (data ?? []).map((row) => fromNewsRow(row as Record<string, unknown>));
+}
+
+export async function savePostDrafts(client: SupabaseClient | null, drafts: PostDraft[]) {
+  if (!client || drafts.length === 0) return false;
+  const { error } = await client.from("founder_hub_post_drafts").upsert(drafts.map(toPostDraftRow), { onConflict: "id" });
+  if (error) throw error;
+  return true;
+}
+
+export async function listPostDrafts(client: SupabaseClient | null): Promise<PostDraft[]> {
+  if (!client) return [];
+  const { data, error } = await client
+    .from("founder_hub_post_drafts")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(12);
+  if (error) throw error;
+  return (data ?? []).map((row) => fromPostDraftRow(row as Record<string, unknown>));
+}
+
 export async function saveFeedbackEmails(client: SupabaseClient | null, emails: FeedbackEmail[]) {
   if (!client || emails.length === 0) return false;
   const { error } = await client.from("founder_hub_emails").upsert(emails.map(toEmailRow), { onConflict: "id" });
@@ -103,13 +139,17 @@ export async function saveAnalyticsSnapshot(client: SupabaseClient | null, snaps
 
 function toAnalyticsRow(snapshot: AnalyticsSnapshot) {
   return {
+    active_users: snapshot.activeUsers,
     visitors: snapshot.visitors,
     unique_visitors: snapshot.uniqueVisitors,
     conversions: snapshot.conversions,
     conversion_rate: snapshot.conversionRate,
+    waitlist_clicks: snapshot.waitlistClicks,
+    waitlist_submits: snapshot.waitlistSubmits,
     waitlist_signups: snapshot.waitlistSignups,
     waitlist_confirmed: snapshot.waitlistConfirmed,
     waitlist_conversion_rate: snapshot.waitlistConversionRate,
+    click_to_signup_rate: snapshot.clickToSignupRate,
     waitlist_sources: snapshot.waitlistSources,
     page_events: snapshot.pageEvents,
     top_referrers: snapshot.topReferrers,
@@ -198,6 +238,9 @@ function toCommunityRow(item: CommunityItem) {
   return {
     id: item.id,
     source: item.source,
+    kind: item.kind ?? null,
+    subreddit: item.subreddit ?? null,
+    score: item.score ?? null,
     title: item.title,
     author: item.author,
     url: item.url,
@@ -239,6 +282,9 @@ function fromCommunityRow(row: Record<string, unknown>): CommunityItem {
       row.source === "reddit" || row.source === "x" || row.source === "indie-hackers" || row.source === "hacker-news"
         ? row.source
         : "reddit",
+    kind: row.kind === "comment" || row.kind === "story" || row.kind === "post" ? row.kind : undefined,
+    subreddit: stringValue(row.subreddit) || undefined,
+    score: row.score === null || typeof row.score === "undefined" ? undefined : numberValue(row.score),
     title,
     author: stringValue(row.author),
     url: stringValue(row.url),
@@ -262,6 +308,9 @@ function fromCachedCommunityItem(value: unknown): CommunityItem | null {
   return normalizeCommunityCopy({
     id: stringValue(row.id),
     source,
+    kind: row.kind === "comment" || row.kind === "story" || row.kind === "post" ? row.kind : undefined,
+    subreddit: stringValue(row.subreddit) || undefined,
+    score: row.score === null || typeof row.score === "undefined" ? undefined : numberValue(row.score),
     title: stringValue(row.title),
     author: stringValue(row.author),
     url: stringValue(row.url),
@@ -308,13 +357,17 @@ function fromEmailRow(row: Record<string, unknown>): FeedbackEmail {
 
 function fromAnalyticsRow(row: Record<string, unknown>): AnalyticsSnapshot {
   return {
+    activeUsers: numberValue(row.active_users),
     visitors: numberValue(row.visitors),
     uniqueVisitors: numberValue(row.unique_visitors),
     conversions: numberValue(row.conversions),
     conversionRate: numberValue(row.conversion_rate),
+    waitlistClicks: numberValue(row.waitlist_clicks),
+    waitlistSubmits: numberValue(row.waitlist_submits),
     waitlistSignups: numberValue(row.waitlist_signups),
     waitlistConfirmed: numberValue(row.waitlist_confirmed),
     waitlistConversionRate: numberValue(row.waitlist_conversion_rate),
+    clickToSignupRate: numberValue(row.click_to_signup_rate),
     waitlistSources: waitlistSourceArray(row.waitlist_sources),
     pageEvents: pageEventArray(row.page_events),
     topReferrers: referrerArray(row.top_referrers),
@@ -322,6 +375,58 @@ function fromAnalyticsRow(row: Record<string, unknown>): AnalyticsSnapshot {
     topClicks: clickArray(row.top_clicks),
     trend: trendArray(row.trend),
     aiExplanation: stringValue(row.ai_explanation)
+  };
+}
+
+function toNewsRow(item: NewsItem) {
+  return {
+    id: item.id,
+    source: item.source,
+    title: item.title,
+    url: item.url,
+    summary: item.summary,
+    topic: item.topic,
+    score: item.score,
+    published_at: item.publishedAt
+  };
+}
+
+function fromNewsRow(row: Record<string, unknown>): NewsItem {
+  const topic = stringValue(row.topic);
+  const source = stringValue(row.source);
+  return {
+    id: stringValue(row.id),
+    source: source === "techcrunch" || source === "hacker-news" || source === "indie-hackers" || source === "rss" ? source : "rss",
+    title: stringValue(row.title),
+    url: stringValue(row.url),
+    summary: stringValue(row.summary),
+    topic: topic === "saas" || topic === "ai" || topic === "solopreneur" || topic === "startup" ? topic : "startup",
+    score: numberValue(row.score),
+    publishedAt: stringValue(row.published_at)
+  };
+}
+
+function toPostDraftRow(draft: PostDraft) {
+  return {
+    id: draft.id,
+    title: draft.title,
+    body: draft.body,
+    channel: draft.channel,
+    source_ids: draft.sourceIds,
+    rationale: draft.rationale,
+    created_at: draft.createdAt
+  };
+}
+
+function fromPostDraftRow(row: Record<string, unknown>): PostDraft {
+  return {
+    id: stringValue(row.id),
+    title: stringValue(row.title),
+    body: stringValue(row.body),
+    channel: "x-linkedin",
+    sourceIds: Array.isArray(row.source_ids) ? row.source_ids.map(String).filter(Boolean) : [],
+    rationale: stringValue(row.rationale),
+    createdAt: stringValue(row.created_at)
   };
 }
 
@@ -380,13 +485,24 @@ function fallbackPostAngle(painPoint: string, title: string) {
 
 function isMissingCommunityColumnError(error: { message?: string; code?: string }) {
   const message = error.message?.toLowerCase() ?? "";
-  return error.code === "PGRST204" || message.includes("user_language") || message.includes("post_angle");
+  return (
+    error.code === "PGRST204" ||
+    message.includes("user_language") ||
+    message.includes("post_angle") ||
+    message.includes("kind") ||
+    message.includes("subreddit") ||
+    message.includes("score")
+  );
 }
 
 function isMissingAnalyticsColumnError(error: { message?: string; code?: string }) {
   const message = error.message?.toLowerCase() ?? "";
   return (
     error.code === "PGRST204" ||
+    message.includes("active_users") ||
+    message.includes("waitlist_clicks") ||
+    message.includes("waitlist_submits") ||
+    message.includes("click_to_signup_rate") ||
     message.includes("waitlist_signups") ||
     message.includes("waitlist_confirmed") ||
     message.includes("waitlist_conversion_rate") ||

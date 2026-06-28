@@ -10,7 +10,6 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "gmail:auth": "node scripts/gmail-oauth.mjs",
     "check:live": "node scripts/check-live-integrations.mjs"
   },
   "dependencies": {

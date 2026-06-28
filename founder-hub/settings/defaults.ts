@@ -7,8 +7,9 @@ export const defaultCommunityQuery = "solo founder SaaS pain validation launch f
 export const defaultFounderHubSettings = {
   hackerNewsLimit: 10,
   hackerNewsQuery: "solo founder SaaS validation launch feedback",
+  newsLimit: 24,
   subredditLimit: 10,
-  subreddits: ["SoloDevelopment", "microsaas", "Entrepreneur", "SideProject", "startups"],
+  subreddits: ["microsaas", "SideProject", "startups", "Entrepreneur", "SoloDevelopment"],
   gmailQuery: "from:hello@info.forgeko.com newer_than:30d",
   analyticsPeriod: "7d"
 } as const;

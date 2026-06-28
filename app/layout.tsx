@@ -3,6 +3,7 @@ import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 
 import { PageAmbientField } from "@/components/PageAmbientField";
+import { PageViewTracker } from "@/components/PageViewTracker";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://forgeko.com";
@@ -76,6 +77,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     >
       <head />
       <body>
+        <PageViewTracker />
         <PageAmbientField />
         {children}
         <script

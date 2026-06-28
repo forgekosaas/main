@@ -23,13 +23,15 @@ describe("Founder Hub env safety", () => {
     const status = getPublicSettingsStatus(env);
 
     expect(status.gemini.configured).toBe(true);
+    expect(status.gemini.missing).toEqual([]);
     expect(status.analytics.configured).toBe(true);
-    expect(status.gmail.configured).toBe(true);
     expect(status.reddit.configured).toBe(true);
+    expect(status.reddit.missing).toEqual([]);
+    expect(status.hackerNews.configured).toBe(true);
+    expect(status.rssNews.configured).toBe(true);
     expect(JSON.stringify(status)).not.toContain("gemini-secret");
     expect(JSON.stringify(status)).not.toContain("service-role");
     expect(JSON.stringify(status)).not.toContain("analytics-secret");
-    expect(JSON.stringify(status)).not.toContain("google-secret");
     expect(JSON.stringify(status)).not.toContain("reddit-secret");
   });
 });

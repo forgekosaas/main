@@ -2,9 +2,16 @@ export type CommunitySource = "reddit" | "x" | "indie-hackers" | "hacker-news";
 
 export type FeedbackCategory = "Waitlist" | "Feedback" | "Bug" | "Feature Request" | "Altro";
 
+export type NewsSource = "techcrunch" | "hacker-news" | "indie-hackers" | "rss";
+
+export type NewsTopic = "saas" | "ai" | "solopreneur" | "startup";
+
 export interface CommunityItem {
   id: string;
   source: CommunitySource;
+  kind?: "post" | "comment" | "story";
+  subreddit?: string;
+  score?: number;
   title: string;
   author: string;
   url: string;
@@ -29,6 +36,9 @@ export interface ManualCommunityInput {
 export interface RawCommunityItem {
   id: string;
   source: CommunitySource;
+  kind?: "post" | "comment" | "story";
+  subreddit?: string;
+  score?: number;
   title: string;
   author: string;
   url: string;
@@ -37,13 +47,17 @@ export interface RawCommunityItem {
 }
 
 export interface AnalyticsSnapshot {
+  activeUsers: number;
   visitors: number;
   uniqueVisitors: number;
   conversions: number;
   conversionRate: number;
+  waitlistClicks: number;
+  waitlistSubmits: number;
   waitlistSignups: number;
   waitlistConfirmed: number;
-  waitlistConversionRate: number;
+  waitlistConversionRate: number | null;
+  clickToSignupRate: number | null;
   waitlistSources: Array<{ source: string; signups: number }>;
   pageEvents: Array<{ eventType: string; count: number }>;
   topReferrers: Array<{ source: string; visitors: number }>;
@@ -51,6 +65,39 @@ export interface AnalyticsSnapshot {
   topClicks: Array<{ label: string; href: string; clicks: number }>;
   trend: Array<{ date: string; visitors: number }>;
   aiExplanation: string;
+}
+
+export interface NewsItem {
+  id: string;
+  source: NewsSource;
+  title: string;
+  url: string;
+  summary: string;
+  topic: NewsTopic;
+  score: number;
+  publishedAt: string;
+}
+
+export interface PostDraft {
+  id: string;
+  title: string;
+  body: string;
+  channel: "x-linkedin";
+  sourceIds: string[];
+  rationale: string;
+  createdAt: string;
+}
+
+export interface VideoIdea {
+  id: string;
+  channel: "tiktok-instagram" | "youtube";
+  title: string;
+  hook: string;
+  outline: string[];
+  targetAudience: string;
+  sourceIds: string[];
+  rationale: string;
+  createdAt: string;
 }
 
 export interface FeedbackEmail {
@@ -93,11 +140,24 @@ export interface DailyBrief {
 }
 
 export interface FounderHubSnapshot {
+  newsItems: NewsItem[];
+  postDrafts: PostDraft[];
+  videoIdeas?: VideoIdea[];
   communityItems: CommunityItem[];
   analytics: AnalyticsSnapshot;
+  sourceHealth?: SourceHealthItem[];
   feedback: FeedbackEmail[];
   insights: Insight[];
   memory: MemoryEntry[];
+}
+
+export interface SourceHealthItem {
+  id: string;
+  label: string;
+  status: "ok" | "skipped" | "error";
+  detail: string;
+  count?: number;
+  updatedAt: string;
 }
 
 export interface ServiceStatus {
@@ -110,7 +170,7 @@ export interface PublicSettingsStatus {
   gemini: ServiceStatus;
   supabase: ServiceStatus;
   analytics: ServiceStatus;
-  gmail: ServiceStatus;
   reddit: ServiceStatus;
   hackerNews: ServiceStatus;
+  rssNews: ServiceStatus;
 }
