@@ -14,8 +14,14 @@ export function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [consentMarketing, setConsentMarketing] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetSignal, setTurnstileResetSignal] = useState(0);
   const [state, setState] = useState<FormState>("idle");
   const [message, setMessage] = useState("");
+
+  function resetTurnstileToken() {
+    setTurnstileToken("");
+    setTurnstileResetSignal((value) => value + 1);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,6 +30,7 @@ export function WaitlistForm() {
     trackEvent("Waitlist_Submit", { source: "cta_final" });
 
     if (turnstileSiteKey && !turnstileToken) {
+      resetTurnstileToken();
       setState("error");
       setMessage(messageForTurnstileCode("TURNSTILE_REQUIRED"));
       return;
@@ -43,17 +50,20 @@ export function WaitlistForm() {
     const body = (await response.json().catch(() => null)) as { code?: string; message?: string } | null;
 
     if (response.ok && body?.code === "ALREADY_JOINED") {
+      resetTurnstileToken();
       setState("duplicate");
       setMessage("You're already on the list.");
       return;
     }
 
     if (response.ok) {
+      resetTurnstileToken();
       setState("success");
       setMessage("You're on the list. We'll email you when the first version is ready.");
       return;
     }
 
+    resetTurnstileToken();
     setState("error");
     setMessage(body?.message ?? "Something went wrong. Please try again.");
   }
@@ -101,7 +111,7 @@ export function WaitlistForm() {
           .
         </span>
       </label>
-      <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstileToken} className="mt-5" />
+      <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetSignal={turnstileResetSignal} className="mt-5" />
       {message ? (
         <p
           className={`mt-5 flex items-start gap-2 text-sm leading-6 ${state === "error" ? "text-red-300" : "text-neutral-300"}`}

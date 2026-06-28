@@ -7,10 +7,12 @@ import { loadTurnstileScript } from "@/lib/turnstile-widget";
 export function TurnstileField({
   siteKey,
   onToken,
+  resetSignal = 0,
   className = ""
 }: {
   siteKey?: string;
   onToken: (token: string) => void;
+  resetSignal?: number;
   className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,6 +49,15 @@ export function TurnstileField({
       }
     };
   }, [onToken, siteKey]);
+
+  useEffect(() => {
+    if (!resetSignal || !widgetIdRef.current || !window.turnstile) {
+      return;
+    }
+
+    window.turnstile.reset(widgetIdRef.current);
+    onToken("");
+  }, [onToken, resetSignal]);
 
   if (!siteKey) {
     return null;

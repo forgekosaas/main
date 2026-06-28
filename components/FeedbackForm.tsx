@@ -14,8 +14,14 @@ export function FeedbackForm() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetSignal, setTurnstileResetSignal] = useState(0);
   const [state, setState] = useState<FormState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
+
+  function resetTurnstileToken() {
+    setTurnstileToken("");
+    setTurnstileResetSignal((value) => value + 1);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,6 +30,7 @@ export function FeedbackForm() {
     trackEvent("Feedback_Submit", { source: "contact" });
 
     if (turnstileSiteKey && !turnstileToken) {
+      resetTurnstileToken();
       setState("error");
       setStatusMessage(messageForTurnstileCode("TURNSTILE_REQUIRED"));
       return;
@@ -43,6 +50,7 @@ export function FeedbackForm() {
     const body = (await response.json().catch(() => null)) as { message?: string } | null;
 
     if (response.ok) {
+      resetTurnstileToken();
       setState("success");
       setEmail("");
       setMessage("");
@@ -50,6 +58,7 @@ export function FeedbackForm() {
       return;
     }
 
+    resetTurnstileToken();
     setState("error");
     setStatusMessage(body?.message ?? "Something went wrong. Please try again.");
   }
@@ -98,7 +107,7 @@ export function FeedbackForm() {
           Send feedback
         </button>
       </div>
-      <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstileToken} className="mt-5" />
+      <TurnstileField siteKey={turnstileSiteKey} onToken={setTurnstileToken} resetSignal={turnstileResetSignal} className="mt-5" />
       {statusMessage ? (
         <p
           className={`mt-5 flex items-start gap-2 text-sm leading-6 ${state === "error" ? "text-red-300" : "text-neutral-300"}`}

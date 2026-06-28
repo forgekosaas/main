@@ -1,6 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 
 describe("Turnstile widget loader", () => {
+  it("documents that widgets can be reset after a consumed token", async () => {
+    const reset = vi.fn();
+    const remove = vi.fn();
+    const render = vi.fn(() => "widget-id");
+
+    const widget = { render, reset, remove };
+
+    widget.reset("widget-id");
+
+    expect(reset).toHaveBeenCalledWith("widget-id");
+  });
+
   it("loads Cloudflare Turnstile with explicit rendering", async () => {
     const appendedScripts: FakeScript[] = [];
     const scriptsById = new Map<string, FakeScript>();

@@ -13,6 +13,7 @@ export type TurnstileWidget = {
       "error-callback": () => void;
     }
   ) => string;
+  reset: (widgetId: string) => void;
   remove: (widgetId: string) => void;
 };
 
