@@ -27,12 +27,6 @@ const checks = [
     run: checkForgekoAnalytics
   },
   {
-    id: "reddit",
-    label: "Reddit public listing",
-    required: [],
-    run: checkReddit
-  },
-  {
     id: "hackerNews",
     label: "Hacker News public search",
     required: [],
@@ -121,18 +115,6 @@ async function checkForgekoAnalytics() {
 
   await assertOk(response, "Forgeko analytics summary");
   return "Protected analytics summary is readable.";
-}
-
-async function checkReddit() {
-  const listingResponse = await fetch("https://www.reddit.com/r/microsaas/new.json?limit=1", {
-    method: "GET",
-    headers: {
-      "User-Agent": "ForgekoFounderHub/0.1 public-local smoke test",
-      Accept: "application/json"
-    }
-  });
-  await assertOk(listingResponse, "Reddit r/microsaas public listing");
-  return "Public Reddit JSON listing is readable without OAuth.";
 }
 
 async function checkHackerNews() {

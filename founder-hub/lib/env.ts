@@ -56,7 +56,7 @@ export function getPublicSettingsStatus(env: FounderHubEnv): PublicSettingsStatu
       [env.forgekoSiteUrl, env.forgekoAnalyticsToken]
     ),
     reddit: serviceStatus(
-      "Reddit public JSON",
+      "Manual Reddit input",
       [],
       []
     ),

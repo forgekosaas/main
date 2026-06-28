@@ -320,7 +320,7 @@ Applicazione Next.js separata (`founder-hub/`, porta 3030) — decision dashboar
 | Modulo | Cosa fa |
 | :--- | :--- |
 | **Analytics** | Snapshot da Supabase, eventi first-party e spiegazione AI dei trend |
-| **Community** | Sync Reddit e Hacker News, analisi AI pain point e reply suggerite |
+| **Community** | Sync Hacker News/RSS e inserimento manuale Reddit/X/Indie Hackers, analisi pain point e reply suggerite |
 | **Feedback** | Sync Gmail, classificazione AI (Waitlist, Bug, Feature Request, ecc.) |
 | **Insights** | Note cross-source su pain point da community, analytics, waitlist, feedback |
 | **Marketing** | Daily brief e export markdown |

@@ -17,7 +17,7 @@ export async function regeneratePostDraftsFromSnapshot(snapshot: FounderHubSnaps
     const step = sourceHealthStep({
       ...stepBase,
       status: "skipped",
-      detail: "Run Extract latest data first to load RSS or Reddit source signals.",
+      detail: "Run Extract latest data first to load RSS signals, or add community signals manually.",
       count: 0
     });
     return { snapshot: { ...base, sourceHealth: upsertSourceHealth(base.sourceHealth, step) }, step };
@@ -49,7 +49,7 @@ export async function regenerateVideoIdeasFromSnapshot(snapshot: FounderHubSnaps
     const step = sourceHealthStep({
       ...stepBase,
       status: "skipped",
-      detail: "Run Extract latest data first to load RSS or Reddit source signals.",
+      detail: "Run Extract latest data first to load RSS signals, or add community signals manually.",
       count: 0
     });
     return { snapshot: { ...base, sourceHealth: upsertSourceHealth(base.sourceHealth, step) }, step };

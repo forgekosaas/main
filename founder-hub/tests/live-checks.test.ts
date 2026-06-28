@@ -23,7 +23,7 @@ describe("live integration check planner", () => {
       FOUNDER_HUB_ANALYTICS_TOKEN: "analytics-secret"
     });
 
-    expect(plan.map((check) => check.id)).toEqual(["gemini", "supabase", "analytics", "reddit", "hackerNews", "rssNews"]);
+    expect(plan.map((check) => check.id)).toEqual(["gemini", "supabase", "analytics", "hackerNews", "rssNews"]);
     expect(plan.every((check) => check.mode === "read-only")).toBe(true);
     expect(JSON.stringify(plan)).not.toContain("secret");
   });

@@ -9,7 +9,7 @@ describe("private Founder Hub home", () => {
     const html = renderToStaticMarkup(<FounderHubHome snapshot={emptyFounderHubSnapshot} />);
 
     expect(html).toContain("Daily Post Drafts");
-    expect(html).toContain("Reddit Pain Points");
+    expect(html).toContain("Manual Community Pain Points");
     expect(html).toContain("Analytics");
     expect(html).toContain("Extract latest data");
     expect(html).toContain("Regenerate post ideas");

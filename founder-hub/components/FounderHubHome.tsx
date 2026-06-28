@@ -22,7 +22,7 @@ export function FounderHubHome({ snapshot }: { snapshot: FounderHubSnapshot }) {
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-hub-muted">Private local hub</p>
             <h1 className="mt-2 text-2xl font-semibold tracking-normal text-hub-ink">Founder Hub</h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-hub-muted">
-              Source-backed marketing drafts, Reddit pain points, and the only Forgeko funnel metrics worth checking right now.
+              Source-backed marketing drafts, manual community pain points, and the only Forgeko funnel metrics worth checking right now.
             </p>
           </div>
           <a
@@ -102,14 +102,14 @@ export function FounderHubHome({ snapshot }: { snapshot: FounderHubSnapshot }) {
                 </article>
               ))
             ) : (
-              <EmptyState title="No post drafts yet" body="Run Extract latest data to fetch news, read Reddit, and generate private drafts." />
+              <EmptyState title="No post drafts yet" body="Run Extract latest data to fetch news and generate private drafts. Add community signals manually when useful." />
             )}
           </div>
         </section>
 
         <section className="hub-panel p-4">
-          <h2 className="text-base font-semibold text-hub-ink">Reddit Pain Points</h2>
-          <p className="mt-1 text-sm text-hub-muted">Daily and weekly listening signals from the selected founder subreddits.</p>
+          <h2 className="text-base font-semibold text-hub-ink">Manual Community Pain Points</h2>
+          <p className="mt-1 text-sm text-hub-muted">Reddit, X, and Indie Hackers signals added manually while automatic Reddit fetching is disabled.</p>
           <div className="mt-4 grid gap-2">
             {painPointRows.length > 0 ? (
               painPointRows.map((row) => (
@@ -134,14 +134,14 @@ export function FounderHubHome({ snapshot }: { snapshot: FounderHubSnapshot }) {
                 </div>
               ))
             ) : (
-              <p className="rounded-md border border-hub-line bg-[#FBFAF7] px-3 py-2 text-sm text-hub-muted">No Reddit pain points loaded yet.</p>
+              <p className="rounded-md border border-hub-line bg-[#FBFAF7] px-3 py-2 text-sm text-hub-muted">No manual Reddit pain points loaded yet.</p>
             )}
           </div>
           <div className="mt-4 grid gap-3">
             {redditItems.length > 0 ? (
               redditItems.map((item) => <RedditOpportunity key={item.id} item={item} />)
             ) : (
-              <EmptyState title="No Reddit opportunities" body="Reddit public JSON/RSS returned no matching posts yet, or the request was rate limited. Run Extract latest data again later." />
+              <EmptyState title="No manual Reddit opportunities" body="Automatic Reddit fetching is disabled for MVP. Add relevant Reddit, X, or Indie Hackers items manually." />
             )}
           </div>
         </section>

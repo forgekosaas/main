@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { syncAnalyticsSnapshot } from "@/jobs/sync-analytics";
-import { syncRedditCommunity } from "@/jobs/sync-community";
 import { syncNewsItems } from "@/jobs/sync-news";
 import { syncPostDrafts } from "@/jobs/sync-post-drafts";
 import { publicErrorMessage } from "@/lib/api-errors";
@@ -9,7 +8,7 @@ import { snapshotCounts } from "@/lib/data-flow";
 import { getFounderHubEnv } from "@/lib/env";
 import { flowLog, publicFlowError } from "@/lib/flow-log";
 import { emptyAnalyticsSnapshot } from "@/lib/snapshot";
-import { writeLocalFounderHubSnapshot } from "@/services/local-cache";
+import { readLocalFounderHubSnapshot, writeLocalFounderHubSnapshot } from "@/services/local-cache";
 import type { AnalyticsSnapshot, CommunityItem, FounderHubSnapshot, NewsItem, SourceHealthItem } from "@/types/founder-hub";
 
 type SyncStatus = "ok" | "skipped" | "error";
@@ -30,13 +29,14 @@ export async function POST() {
   try {
     const env = getFounderHubEnv();
     const steps: SyncStep[] = [];
+    const existingSnapshot = await readLocalFounderHubSnapshot();
     let syncedNewsItems: NewsItem[] = [];
-    let syncedCommunityItems: CommunityItem[] = [];
+    let syncedCommunityItems: CommunityItem[] = existingSnapshot?.communityItems ?? [];
     let syncedAnalytics: AnalyticsSnapshot = emptyAnalyticsSnapshot;
     let syncedPostDrafts: FounderHubSnapshot["postDrafts"] = [];
     let syncedVideoIdeas: FounderHubSnapshot["videoIdeas"] = [];
 
-    const [analytics, news, reddit] = await Promise.all([
+    const [analytics, news] = await Promise.all([
       captureStep(
         "analytics",
         "Forgeko analytics",
@@ -61,21 +61,9 @@ export async function POST() {
           return { detail: `${result.items.length} SaaS/AI/founder news items loaded`, count: result.items.length };
         },
         15000
-      ),
-      captureStep(
-        "reddit",
-        "Reddit opportunities",
-        async () => {
-          const result = await syncRedditCommunity(env);
-          syncedCommunityItems = result.items;
-          return result.configured
-            ? { detail: `${result.items.length} relevant public Reddit posts/comments loaded`, count: result.items.length }
-            : { status: "skipped" as const, detail: "Reddit public source is not available right now." };
-        },
-        20000
       )
     ]);
-    steps.push(analytics, news, reddit);
+    steps.push(analytics, news);
 
     const drafts = await captureStep(
       "postDrafts",

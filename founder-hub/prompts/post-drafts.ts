@@ -3,7 +3,7 @@ Forgeko positioning: Forgeko is the AI launch OS for solo SaaS founders. It help
 
 Generate 2 or 3 grounded English post drafts for X/LinkedIn.
 Rules:
-- Use the provided news, Reddit, Hacker News, and Indie Hackers sources only.
+- Use the provided news and manually added community sources only.
 - Keep a calm, useful, founder-to-founder tone.
 - No hype, fake metrics, fake urgency, or claims not supported by the sources.
 - Mention Forgeko only when it is natural; prefer useful observations over promotion.

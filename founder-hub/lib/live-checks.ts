@@ -1,4 +1,4 @@
-export type LiveCheckId = "gemini" | "supabase" | "analytics" | "reddit" | "hackerNews" | "rssNews";
+export type LiveCheckId = "gemini" | "supabase" | "analytics" | "hackerNews" | "rssNews";
 
 export interface LiveServiceStatus {
   id: LiveCheckId;
@@ -43,13 +43,6 @@ const serviceDefinitions: Array<{
     optional: true,
     mode: "read-only",
     description: "GET protected Forgeko analytics summary."
-  },
-  {
-    id: "reddit",
-    label: "Reddit public JSON",
-    required: [],
-    mode: "read-only",
-    description: "GET public subreddit JSON without OAuth credentials."
   },
   {
     id: "hackerNews",
